@@ -213,7 +213,7 @@ body {
 .nav-logo {
   font-size: 1.3rem;
   font-weight: 800;
-  letter-spacing: 2px;
+  letter-spacing: 30px;
   text-transform: uppercase;
   background: linear-gradient(135deg, var(--violet), var(--neon-glow));
   -webkit-background-clip: text;
