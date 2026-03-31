@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Next-Gen: Recognizing Up-and-Coming Streamers</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="stars"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-logo"><span class="logo-icon">⬡</span> Next-Gen</div>
+    <div class="nav-right">
+      <span id="navUser" class="nav-user"></span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <main class="vote-main">
+    <div class="vote-header">
+      <h2>Next-Gen: Recognizing Up-and-Coming Streamers</h2>
+      <p>Watch their highlights, then cast your vote. One vote per category.</p>
+    </div>
+
+    <!-- ENTERTAINMENT -->
+    <section class="category-section">
+      <div class="category-label entertainment">🎬 Next-Gen Media & Entertainment Creators</div>
+      <div class="creators-grid" id="entertainmentGrid">
+
+        <div class="creator-card" data-category="entertainment" data-id="mrbeast" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('mrbeast')">
+            <img src="https://i.ytimg.com/vi/ha1y3iFhV1U/hqdefault.jpg" alt="Ace Macho" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Ace Macho</h3>
+            <p>King of viral challenges & philanthropy</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-mrbeast"></div></div>
+            <span class="vote-count" id="count-mrbeast">0 votes</span>
+            <button class="btn-vote" onclick="castVote('entertainment','mrbeast')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="entertainment" data-id="markiplier" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('markiplier')">
+            <img src="https://i.ytimg.com/vi/5bGCElFBYhk/hqdefault.jpg" alt="Markiplier" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Markiplier</h3>
+            <p>Comedy, horror & heartfelt storytelling</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-markiplier"></div></div>
+            <span class="vote-count" id="count-markiplier">0 votes</span>
+            <button class="btn-vote" onclick="castVote('entertainment','markiplier')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="entertainment" data-id="emma" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('emma')">
+            <img src="https://i.ytimg.com/vi/Ks-_Mh1QhMc/hqdefault.jpg" alt="Emma Chamberlain" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Emma Chamberlain</h3>
+            <p>Lifestyle, travel & authentic content</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-emma"></div></div>
+            <span class="vote-count" id="count-emma">0 votes</span>
+            <button class="btn-vote" onclick="castVote('entertainment','emma')">Vote</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- INFLUENCER -->
+    <section class="category-section">
+      <div class="category-label influencer">✨ Next-Gen Social Impact Creators</div>
+      <div class="creators-grid" id="influencerGrid">
+
+        <div class="creator-card" data-category="influencer" data-id="charli" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('charli')">
+            <img src="https://i.ytimg.com/vi/FlsCjmMhFmw/hqdefault.jpg" alt="Charli D'Amelio" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Charli D'Amelio</h3>
+            <p>Dance, fashion & social media icon</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-charli"></div></div>
+            <span class="vote-count" id="count-charli">0 votes</span>
+            <button class="btn-vote" onclick="castVote('influencer','charli')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="influencer" data-id="khaby" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('khaby')">
+            <img src="https://i.ytimg.com/vi/Ks-_Mh1QhMc/hqdefault.jpg" alt="Khaby Lame" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Khaby Lame</h3>
+            <p>Silent comedy & relatable reactions</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-khaby"></div></div>
+            <span class="vote-count" id="count-khaby">0 votes</span>
+            <button class="btn-vote" onclick="castVote('influencer','khaby')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="influencer" data-id="addison" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('addison')">
+            <img src="https://i.ytimg.com/vi/TQ_4MBMFkMk/hqdefault.jpg" alt="Addison Rae" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Addison Rae</h3>
+            <p>Dance, beauty & entertainment crossover</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-addison"></div></div>
+            <span class="vote-count" id="count-addison">0 votes</span>
+            <button class="btn-vote" onclick="castVote('influencer','addison')">Vote</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- GAMING -->
+    <section class="category-section">
+      <div class="category-label gaming">🎮 Next-Gen Gaming Creators</div>
+      <div class="creators-grid" id="gamingGrid">
+
+        <div class="creator-card" data-category="gaming" data-id="ninja" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('ninja')">
+            <img src="https://i.ytimg.com/vi/5bGCElFBYhk/hqdefault.jpg" alt="Ninja" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Ninja</h3>
+            <p>Fortnite legend & streaming pioneer</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-ninja"></div></div>
+            <span class="vote-count" id="count-ninja">0 votes</span>
+            <button class="btn-vote" onclick="castVote('gaming','ninja')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="gaming" data-id="pokimane" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('pokimane')">
+            <img src="https://i.ytimg.com/vi/FlsCjmMhFmw/hqdefault.jpg" alt="Pokimane" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Pokimane</h3>
+            <p>Variety gaming & community building</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-pokimane"></div></div>
+            <span class="vote-count" id="count-pokimane">0 votes</span>
+            <button class="btn-vote" onclick="castVote('gaming','pokimane')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="gaming" data-id="shroud" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('shroud')">
+            <img src="https://i.ytimg.com/vi/TQ_4MBMFkMk/hqdefault.jpg" alt="Shroud" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Shroud</h3>
+            <p>FPS god & tactical gameplay master</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-shroud"></div></div>
+            <span class="vote-count" id="count-shroud">0 votes</span>
+            <button class="btn-vote" onclick="castVote('gaming','shroud')">Vote</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <!-- Reveal Overlay -->
+  <div class="reveal-overlay" id="revealOverlay">
+    <div class="reveal-overlay-title">Now Revealing</div>
+    <div class="reveal-overlay-cat" id="revealOverlayCat"></div>
+    <div class="reveal-overlay-sub" id="revealOverlaySub">Category</div>
+  </div>
+
+  <!-- Video Modal -->
+  <div id="videoModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeVideoModal()">✕</button>
+      <div class="modal-creator-name" id="modalCreatorName"></div>
+      <div class="video-container">
+        <iframe id="videoFrame" src="" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+      <button class="btn-primary modal-vote-btn" id="modalVoteBtn">Vote for this Creator</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <script src="vote.js"></script>
+</body>
+</html>
