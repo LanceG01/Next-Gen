@@ -213,7 +213,7 @@ body {
 .nav-logo {
   font-size: 1.3rem;
   font-weight: 800;
-  letter-spacing: 30px;
+  letter-spacing: 2cap;
   text-transform: uppercase;
   background: linear-gradient(135deg, var(--violet), var(--neon-glow));
   -webkit-background-clip: text;
@@ -330,7 +330,7 @@ body {
 
 .creators-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
 
@@ -385,17 +385,17 @@ body {
 }
 .creator-thumb:hover .play-overlay span { transform: scale(1.15); }
 
-.creator-info { padding: 18px; }
+.creator-info { padding: 14px; }
 .creator-info h3 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--white);
   margin-bottom: 4px;
 }
 .creator-info p {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--muted);
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .vote-bar-wrap {
