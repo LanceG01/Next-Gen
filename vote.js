@@ -22,8 +22,6 @@ const CATEGORY_LABELS = {
   gaming:        { emoji: '🎮', name: 'Next-Gen Gaming Creators'                 },
 };
 
-const PHANTOM_TOTAL = 342945;
-
 // ===== COUNTDOWN FORMATTER =====
 function formatCountdown(ms) {
   const totalSec = Math.max(0, Math.ceil(ms / 1000));
@@ -39,28 +37,11 @@ function formatCountdown(ms) {
   return parts.join(' ');
 }
 
-// ===== PHANTOM VOTES =====
-function getPhantomVotes() {
-  let seed = localStorage.getItem('nv_phantom_seed');
-  if (!seed) { seed = Date.now().toString(); localStorage.setItem('nv_phantom_seed', seed); }
-  function sr(s) { let x = Math.sin(s) * 10000; return x - Math.floor(x); }
-  let sn = parseInt(seed) % 999983;
-  const phantom = {};
-  CATEGORY_ORDER.forEach(cat => {
-    const creators = Object.keys(VIDEOS).filter(id => VIDEOS[id].category === cat);
-    const r1 = 0.2 + sr(sn++) * 0.6, r2 = 0.2 + sr(sn++) * 0.6;
-    const splits = [r1, r2].sort((a,b) => a-b);
-    const shares = [splits[0], splits[1]-splits[0], 1-splits[1]];
-    creators.forEach((id, i) => { phantom[id] = Math.round(PHANTOM_TOTAL * shares[i]); });
-  });
-  return phantom;
-}
-
 // ===== STATE =====
 let currentModalCreator = null;
 let voteTimerInterval   = null;
 let revealState         = { revealed: false, revealAt: null, locked: false };
-let allVotes            = []; // cached from Firestore
+let allVotes            = [];
 
 // ===== FIRESTORE HELPERS =====
 async function fetchVotes() {
@@ -71,8 +52,7 @@ async function fetchVotes() {
 
 async function fetchRevealState() {
   const snap = await getDoc(doc(db, 'settings', 'reveal'));
-  if (snap.exists()) revealState = snap.data();
-  else revealState = { revealed: false, revealAt: null, locked: false };
+  revealState = snap.exists() ? snap.data() : { revealed: false, revealAt: null, locked: false };
   return revealState;
 }
 
@@ -94,12 +74,11 @@ window.onload = async function () {
   applyLockState();
   startVoteTimerTick();
 
-  // Listen for real-time reveal state changes
+  // Real-time reveal state
   onSnapshot(doc(db, 'settings', 'reveal'), snap => {
     if (!snap.exists()) return;
     const prev = revealState.revealed;
     revealState = snap.data();
-
     if (revealState.revealed && !prev) {
       if (sessionStorage.getItem('reveal_animated') !== '1') {
         clearInterval(voteTimerInterval);
@@ -109,7 +88,6 @@ window.onload = async function () {
       }
     } else if (!revealState.revealed && prev) {
       sessionStorage.removeItem('reveal_animated');
-      localStorage.removeItem('nv_phantom_seed');
       hideAllTallies();
       document.querySelectorAll('.creator-card.winner').forEach(c => c.classList.remove('winner'));
       applyLockState();
@@ -119,7 +97,7 @@ window.onload = async function () {
     }
   });
 
-  // Listen for real-time vote changes
+  // Real-time votes
   onSnapshot(collection(db, 'votes'), snap => {
     allVotes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     if (revealState.revealed) showFinalResults();
@@ -139,12 +117,12 @@ function hideAllTallies() {
 
 // ===== SHOW FINAL RESULTS =====
 function showFinalResults() {
-  const totals   = buildTotals(allVotes);
+  const totals    = buildTotals(allVotes);
   const catTotals = buildCatTotals(allVotes);
   Object.keys(VIDEOS).forEach(id => {
-    const count = totals[id] || 0;
-    const cat   = VIDEOS[id].category;
-    const pct   = catTotals[cat] > 0 ? (count / catTotals[cat]) * 100 : 0;
+    const count   = totals[id] || 0;
+    const cat     = VIDEOS[id].category;
+    const pct     = catTotals[cat] > 0 ? (count / catTotals[cat]) * 100 : 0;
     const countEl = document.getElementById(`count-${id}`);
     const barEl   = document.getElementById(`bar-${id}`);
     const barWrap = barEl?.closest('.vote-bar-wrap');
@@ -158,23 +136,34 @@ function showFinalResults() {
 // ===== SEQUENTIAL REVEAL =====
 async function runSequentialReveal() {
   sessionStorage.setItem('reveal_animated', '1');
-  localStorage.setItem('nv_phantom_seed', Date.now().toString());
 
   for (let i = 0; i < CATEGORY_ORDER.length; i++) {
-    const cat   = CATEGORY_ORDER[i];
-    const label = CATEGORY_LABELS[cat];
+    const cat     = CATEGORY_ORDER[i];
+    const label   = CATEGORY_LABELS[cat];
+
+    // Announce category
     await showRevealOverlay(label.emoji, label.name);
+
+    // Scroll only to the top of this category section
     const section = document.querySelector(`.category-label.${cat}`)?.closest('.category-section');
-    if (section) section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    await sleep(400);
+    if (section) {
+      const top = section.getBoundingClientRect().top + window.scrollY - 60;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+    await sleep(800);
+
     if (section) section.classList.add('revealing');
-    await countUpCategory(cat);
-    await sleep(600);
+
+    // Slow count-up (8 seconds)
+    await countUpCategory(cat, 8000);
+
+    await sleep(800);
     if (section) section.classList.add('counting-done');
     crownWinner(cat);
-    await sleep(1800);
+    await sleep(2500);
     if (section) { section.classList.remove('revealing'); section.classList.remove('counting-done'); }
   }
+
   updateVoterBanner(revealState, null, false);
 }
 
@@ -184,11 +173,11 @@ function showRevealOverlay(emoji, name) {
     document.getElementById('revealOverlayCat').textContent = `${emoji} ${name}`;
     document.getElementById('revealOverlaySub').textContent = 'Category';
     overlay.classList.add('show');
-    setTimeout(() => { overlay.classList.remove('show'); setTimeout(resolve, 300); }, 2000);
+    setTimeout(() => { overlay.classList.remove('show'); setTimeout(resolve, 300); }, 2200);
   });
 }
 
-function countUpCategory(cat) {
+function countUpCategory(cat, duration = 8000) {
   return new Promise(resolve => {
     const creators = Object.keys(VIDEOS).filter(id => VIDEOS[id].category === cat);
     const totals   = buildTotals(allVotes);
@@ -205,13 +194,14 @@ function countUpCategory(cat) {
 
     if (catTotal === 0) { resolve(); return; }
 
-    const duration = 3000, startTime = performance.now();
-    const targets  = {};
+    const startTime = performance.now();
+    const targets   = {};
     creators.forEach(id => { targets[id] = totals[id] || 0; });
 
     function tick(now) {
       const progress = Math.min((now - startTime) / duration, 1);
-      const eased    = 1 - Math.pow(1 - progress, 3);
+      // Ease out quint — very slow at the end for suspense
+      const eased = 1 - Math.pow(1 - progress, 5);
       creators.forEach(id => {
         const cur = Math.round(eased * targets[id]);
         const pct = eased * (catTotal > 0 ? (targets[id] / catTotal) * 100 : 0);
@@ -249,15 +239,13 @@ function crownWinner(cat) {
 
 // ===== HELPERS =====
 function buildTotals(votes) {
-  const t = {}, phantom = getPhantomVotes();
+  const t = {};
   votes.forEach(v => { t[v.creatorId] = (t[v.creatorId] || 0) + 1; });
-  Object.keys(phantom).forEach(id => { t[id] = (t[id] || 0) + phantom[id]; });
   return t;
 }
 function buildCatTotals(votes) {
-  const t = { entertainment: 0, influencer: 0, gaming: 0 }, phantom = getPhantomVotes();
+  const t = { entertainment: 0, influencer: 0, gaming: 0 };
   votes.forEach(v => { if (t[v.category] !== undefined) t[v.category]++; });
-  Object.keys(VIDEOS).forEach(id => { const cat = VIDEOS[id].category; if (t[cat] !== undefined) t[cat] += (phantom[id] || 0); });
   return t;
 }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -290,6 +278,7 @@ function applyLockState() {
     const hasVoted  = userVotes.some(v => v.category === category && v.creatorId === creatorId);
     const catVoted  = userVotes.some(v => v.category === category);
     card.classList.remove('winner');
+
     if (hasVoted) {
       card.classList.add('voted');
       if (btn) { btn.textContent = '✓ Voted'; btn.classList.add('voted-btn'); btn.disabled = true; }
@@ -301,6 +290,14 @@ function applyLockState() {
       if (btn) { btn.classList.remove('voted-btn'); btn.disabled = isLocked; btn.textContent = isLocked ? '🔒 Locked' : 'Vote'; }
     }
   });
+
+  // Show/hide "category done" banners
+  CATEGORY_ORDER.forEach(cat => {
+    const banner  = document.getElementById(`done-${cat}`);
+    const catDone = userVotes.some(v => v.category === cat);
+    if (banner) banner.classList.toggle('show', catDone);
+  });
+
   if (revealState.revealed) CATEGORY_ORDER.forEach(cat => crownWinner(cat));
 }
 
@@ -310,7 +307,7 @@ function updateVoterBanner(s, remaining, isLocked) {
   if (!banner) {
     banner = document.createElement('div');
     banner.id = 'voterBanner';
-    banner.style.cssText = `position:fixed;top:64px;left:0;right:0;z-index:200;text-align:center;padding:10px 20px;font-size:0.85rem;font-weight:700;letter-spacing:1px;`;
+    banner.style.cssText = `position:fixed;top:57px;left:0;right:0;z-index:95;text-align:center;padding:8px 20px;font-size:0.82rem;font-weight:700;letter-spacing:1px;`;
     document.body.appendChild(banner);
   }
   if (s.revealed) {
@@ -366,23 +363,16 @@ async function castVote(category, creatorId) {
   if (!user) return window.location.href = 'index.html';
 
   const alreadyVoted = allVotes.some(v => v.userId === user.id && v.category === category);
-  if (alreadyVoted) return showToast(`You already voted in this category!`);
+  if (alreadyVoted) return showToast('You already voted in this category!');
 
   try {
     await addDoc(collection(db, 'votes'), {
-      userId: user.id, creatorId, category,
-      votedAt: Date.now()
+      userId: user.id, creatorId, category, votedAt: Date.now()
     });
     showToast(`Voted for ${VIDEOS[creatorId].name}! 🎉`);
   } catch (err) {
     showToast('Failed to save vote. Check your connection.');
   }
-}
-
-function markVoted(category, votedId) {
-  document.querySelectorAll(`.creator-card[data-category="${category}"] .btn-vote`).forEach(btn => { btn.disabled = true; });
-  const card = document.querySelector(`.creator-card[data-id="${votedId}"]`);
-  if (card) { card.classList.add('voted'); const btn = card.querySelector('.btn-vote'); if (btn) { btn.textContent = '✓ Voted'; btn.classList.add('voted-btn'); } }
 }
 
 function showToast(msg) {
@@ -397,6 +387,5 @@ function logout() {
   window.location.href = 'index.html';
 }
 
-// Expose to HTML
 window.openVideo = openVideo; window.closeVideoModal = closeVideoModal;
 window.closeModal = closeModal; window.castVote = castVote; window.logout = logout;

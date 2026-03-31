@@ -265,35 +265,60 @@ body {
 .category-section { margin-bottom: 60px; }
 
 .category-label {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  padding: 8px 20px;
-  border-radius: 30px;
+  padding: 10px 20px;
+  border-radius: 0;
   margin-bottom: 24px;
+  position: sticky;
+  top: 57px; /* sits just below navbar */
+  z-index: 90;
+  backdrop-filter: blur(16px);
+  width: 100%;
+  box-sizing: border-box;
 }
 .category-label.entertainment {
-  background: rgba(123,47,255,0.2);
-  border: 1px solid var(--purple);
+  background: rgba(10,0,16,0.92);
+  border-bottom: 2px solid var(--purple);
   color: var(--violet);
-  box-shadow: 0 0 16px rgba(123,47,255,0.3);
+  box-shadow: 0 4px 20px rgba(123,47,255,0.25);
 }
 .category-label.influencer {
-  background: rgba(192,38,211,0.2);
-  border: 1px solid var(--neon);
+  background: rgba(10,0,16,0.92);
+  border-bottom: 2px solid var(--neon);
   color: var(--neon-glow);
-  box-shadow: 0 0 16px rgba(192,38,211,0.3);
+  box-shadow: 0 4px 20px rgba(192,38,211,0.25);
 }
 .category-label.gaming {
-  background: rgba(57,255,20,0.1);
-  border: 1px solid rgba(57,255,20,0.4);
+  background: rgba(10,0,16,0.92);
+  border-bottom: 2px solid rgba(57,255,20,0.6);
   color: var(--green);
-  box-shadow: 0 0 16px rgba(57,255,20,0.2);
+  box-shadow: 0 4px 20px rgba(57,255,20,0.15);
 }
+
+/* ===== CATEGORY DONE BANNER ===== */
+.category-done-banner {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(57,255,20,0.08);
+  border: 1px solid rgba(57,255,20,0.3);
+  border-radius: 10px;
+  padding: 12px 20px;
+  margin-bottom: 16px;
+  color: var(--green);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.category-done-banner.show { display: flex; }
 
 .creators-grid {
   display: grid;
