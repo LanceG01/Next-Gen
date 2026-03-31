@@ -205,9 +205,10 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 14px 32px;
-  background: rgba(10,0,16,0.85);
+  background: rgba(10,0,16,0.95);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(16px);
+  height: 57px;
 }
 .nav-logo {
   font-size: 1.3rem;
@@ -276,7 +277,7 @@ body {
   border-radius: 0;
   margin-bottom: 24px;
   position: sticky;
-  top: 57px; /* sits just below navbar */
+  top: calc(57px + var(--banner-h, 0px));
   z-index: 90;
   backdrop-filter: blur(16px);
   width: 100%;

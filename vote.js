@@ -307,23 +307,34 @@ function updateVoterBanner(s, remaining, isLocked) {
   if (!banner) {
     banner = document.createElement('div');
     banner.id = 'voterBanner';
-    banner.style.cssText = `position:fixed;top:57px;left:0;right:0;z-index:95;text-align:center;padding:8px 20px;font-size:0.82rem;font-weight:700;letter-spacing:1px;`;
-    document.body.appendChild(banner);
+    banner.style.cssText = `position:sticky;top:57px;left:0;right:0;z-index:95;text-align:center;padding:8px 20px;font-size:0.82rem;font-weight:700;letter-spacing:1px;width:100%;`;
+    // Insert banner right after the navbar so it's in the document flow
+    const navbar = document.querySelector('.navbar');
+    if (navbar && navbar.nextSibling) {
+      navbar.parentNode.insertBefore(banner, navbar.nextSibling);
+    } else {
+      document.body.appendChild(banner);
+    }
   }
   if (s.revealed) {
     banner.style.cssText += 'background:linear-gradient(90deg,rgba(57,255,20,0.15),rgba(57,255,20,0.08));border-bottom:1px solid rgba(57,255,20,0.3);color:#39ff14;display:block;';
     banner.textContent = '🏆 Results are now revealed!';
+    document.documentElement.style.setProperty('--banner-h', banner.offsetHeight + 'px');
   } else if (isLocked && remaining !== null) {
     banner.style.cssText += 'background:linear-gradient(90deg,rgba(255,60,110,0.15),rgba(255,60,110,0.08));border-bottom:1px solid rgba(255,60,110,0.3);color:#ff6b8a;display:block;';
     banner.textContent = `🔒 Voting locked — results reveal in ${formatCountdown(remaining)}`;
+    document.documentElement.style.setProperty('--banner-h', banner.offsetHeight + 'px');
   } else if (s.locked && !s.revealAt) {
     banner.style.cssText += 'background:linear-gradient(90deg,rgba(255,140,0,0.12),rgba(255,140,0,0.06));border-bottom:1px solid rgba(255,140,0,0.3);color:#ff8c00;display:block;';
     banner.textContent = '🔒 Voting is currently locked by the administrator.';
+    document.documentElement.style.setProperty('--banner-h', banner.offsetHeight + 'px');
   } else if (remaining !== null && remaining > 30000) {
     banner.style.cssText += 'background:linear-gradient(90deg,rgba(123,47,255,0.12),rgba(123,47,255,0.06));border-bottom:1px solid rgba(123,47,255,0.25);color:#9d7fc0;display:block;';
     banner.textContent = `⏳ Results will be revealed in ${formatCountdown(remaining)}`;
+    document.documentElement.style.setProperty('--banner-h', banner.offsetHeight + 'px');
   } else {
     banner.style.display = 'none';
+    document.documentElement.style.setProperty('--banner-h', '0px');
   }
 }
 
