@@ -25,6 +25,7 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* ===== STAR BACKGROUND ===== */
@@ -235,7 +236,7 @@ body {
 
 /* ===== VOTE MAIN ===== */
 .vote-main {
-  position: relative;
+  position: static;
   z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
