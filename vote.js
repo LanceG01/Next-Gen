@@ -126,7 +126,7 @@ function showFinalResults() {
     const countEl = document.getElementById(`count-${id}`);
     const barEl   = document.getElementById(`bar-${id}`);
     const barWrap = barEl?.closest('.vote-bar-wrap');
-    if (countEl) { countEl.textContent = `${count.toLocaleString()} votes`; countEl.style.visibility = 'visible'; }
+    if (countEl) { countEl.textContent = `${count.toLocaleString()} votes — ${catTotals[cat] > 0 ? Math.round((count/catTotals[cat])*100) : 0}%`; countEl.style.visibility = 'visible'; }
     if (barEl)   barEl.style.width = pct + '%';
     if (barWrap) barWrap.style.visibility = 'visible';
   });
@@ -187,7 +187,7 @@ function countUpCategory(cat, duration = 8000) {
       const countEl = document.getElementById(`count-${id}`);
       const barEl   = document.getElementById(`bar-${id}`);
       const barWrap = barEl?.closest('.vote-bar-wrap');
-      if (countEl) { countEl.style.visibility = 'visible'; countEl.classList.add('counting'); countEl.textContent = '0 votes'; }
+      if (countEl) { countEl.style.visibility = 'visible'; countEl.classList.add('counting'); countEl.textContent = '0 votes — 0%'; }
       if (barEl)   { barEl.style.width = '0%'; barEl.classList.add('counting'); }
       if (barWrap) { barWrap.style.visibility = 'visible'; barWrap.classList.add('counting'); }
     });
@@ -200,14 +200,13 @@ function countUpCategory(cat, duration = 8000) {
 
     function tick(now) {
       const progress = Math.min((now - startTime) / duration, 1);
-      // Ease out quint — very slow at the end for suspense
       const eased = 1 - Math.pow(1 - progress, 5);
       creators.forEach(id => {
-        const cur = Math.round(eased * targets[id]);
-        const pct = eased * (catTotal > 0 ? (targets[id] / catTotal) * 100 : 0);
+        const cur  = Math.round(eased * targets[id]);
+        const pct  = eased * (catTotal > 0 ? (targets[id] / catTotal) * 100 : 0);
         const countEl = document.getElementById(`count-${id}`);
         const barEl   = document.getElementById(`bar-${id}`);
-        if (countEl) countEl.textContent = `${cur.toLocaleString()} votes`;
+        if (countEl) countEl.textContent = `${cur.toLocaleString()} votes — ${Math.round(pct)}%`;
         if (barEl)   barEl.style.width   = pct + '%';
       });
       if (progress < 1) { requestAnimationFrame(tick); return; }
@@ -215,9 +214,9 @@ function countUpCategory(cat, duration = 8000) {
         const countEl = document.getElementById(`count-${id}`);
         const barEl   = document.getElementById(`bar-${id}`);
         const barWrap = barEl?.closest('.vote-bar-wrap');
-        const pct = catTotal > 0 ? (targets[id] / catTotal) * 100 : 0;
-        if (countEl) { countEl.textContent = `${targets[id].toLocaleString()} votes`; countEl.classList.remove('counting'); }
-        if (barEl)   { barEl.style.width = pct + '%'; barEl.classList.remove('counting'); }
+        const finalPct = catTotal > 0 ? (targets[id] / catTotal) * 100 : 0;
+        if (countEl) { countEl.textContent = `${targets[id].toLocaleString()} votes — ${Math.round(finalPct)}%`; countEl.classList.remove('counting'); }
+        if (barEl)   { barEl.style.width = finalPct + '%'; barEl.classList.remove('counting'); }
         if (barWrap) barWrap.classList.remove('counting');
       });
       resolve();

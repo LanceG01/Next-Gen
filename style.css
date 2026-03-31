@@ -400,23 +400,34 @@ body {
 
 .vote-bar-wrap {
   background: rgba(255,255,255,0.06);
-  border-radius: 4px;
-  height: 6px;
+  border-radius: 6px;
+  height: 12px;
   margin-bottom: 6px;
   overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.05);
 }
 .vote-bar {
   height: 100%;
   width: 0%;
   background: linear-gradient(90deg, var(--purple), var(--neon-glow));
-  border-radius: 4px;
+  border-radius: 6px;
   transition: width 0.6s ease;
+  position: relative;
+}
+/* Shimmer effect on the bar */
+.vote-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  border-radius: 6px;
 }
 .vote-count {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: var(--muted);
   display: block;
   margin-bottom: 12px;
+  font-variant-numeric: tabular-nums;
 }
 
 .btn-vote {
@@ -657,8 +668,9 @@ body {
 
 /* ===== COUNT-UP BAR (wider + taller during reveal) ===== */
 .vote-bar-wrap.counting {
-  height: 10px;
+  height: 18px;
   transition: height 0.3s;
+  border-color: rgba(168,85,247,0.2);
 }
 .vote-bar.counting {
   transition: width 0.05s linear !important;
