@@ -307,8 +307,7 @@ function updateVoterBanner(s, remaining, isLocked) {
   if (!banner) {
     banner = document.createElement('div');
     banner.id = 'voterBanner';
-    banner.style.cssText = `position:sticky;top:57px;left:0;right:0;z-index:95;text-align:center;padding:8px 20px;font-size:0.82rem;font-weight:700;letter-spacing:1px;width:100%;`;
-    // Insert banner right after the navbar so it's in the document flow
+    banner.style.cssText = `position:sticky;top:0;left:0;right:0;z-index:95;text-align:center;padding:8px 20px;font-size:0.82rem;font-weight:700;letter-spacing:1px;width:100%;`;
     const navbar = document.querySelector('.navbar');
     if (navbar && navbar.nextSibling) {
       navbar.parentNode.insertBefore(banner, navbar.nextSibling);

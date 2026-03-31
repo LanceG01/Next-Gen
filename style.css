@@ -198,8 +198,7 @@ body {
 
 /* ===== NAVBAR ===== */
 .navbar {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
   display: flex;
   align-items: center;
@@ -268,38 +267,45 @@ body {
 .category-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 1.5px;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 2px;
   text-transform: uppercase;
-  padding: 10px 20px;
+  padding: 13px 24px;
   border-radius: 0;
   margin-bottom: 24px;
   position: sticky;
-  top: calc(57px + var(--banner-h, 0px));
+  top: calc(var(--banner-h, 0px));
   z-index: 90;
-  backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
   width: 100%;
   box-sizing: border-box;
+  transition: box-shadow 0.3s;
 }
 .category-label.entertainment {
-  background: rgba(10,0,16,0.92);
-  border-bottom: 2px solid var(--purple);
-  color: var(--violet);
-  box-shadow: 0 4px 20px rgba(123,47,255,0.25);
+  background: linear-gradient(90deg, rgba(123,47,255,0.35) 0%, rgba(10,0,16,0.92) 100%);
+  border-bottom: 3px solid var(--purple);
+  border-top: 1px solid rgba(123,47,255,0.4);
+  color: #d8b4fe;
+  box-shadow: 0 4px 24px rgba(123,47,255,0.45), inset 0 1px 0 rgba(168,85,247,0.2);
+  text-shadow: 0 0 20px rgba(168,85,247,0.8);
 }
 .category-label.influencer {
-  background: rgba(10,0,16,0.92);
-  border-bottom: 2px solid var(--neon);
-  color: var(--neon-glow);
-  box-shadow: 0 4px 20px rgba(192,38,211,0.25);
+  background: linear-gradient(90deg, rgba(192,38,211,0.35) 0%, rgba(10,0,16,0.92) 100%);
+  border-bottom: 3px solid var(--neon);
+  border-top: 1px solid rgba(192,38,211,0.4);
+  color: #f0abfc;
+  box-shadow: 0 4px 24px rgba(192,38,211,0.45), inset 0 1px 0 rgba(224,64,251,0.2);
+  text-shadow: 0 0 20px rgba(224,64,251,0.8);
 }
 .category-label.gaming {
-  background: rgba(10,0,16,0.92);
-  border-bottom: 2px solid rgba(57,255,20,0.6);
-  color: var(--green);
-  box-shadow: 0 4px 20px rgba(57,255,20,0.15);
+  background: linear-gradient(90deg, rgba(57,255,20,0.2) 0%, rgba(10,0,16,0.92) 100%);
+  border-bottom: 3px solid var(--green);
+  border-top: 1px solid rgba(57,255,20,0.3);
+  color: #86efac;
+  box-shadow: 0 4px 24px rgba(57,255,20,0.3), inset 0 1px 0 rgba(57,255,20,0.15);
+  text-shadow: 0 0 20px rgba(57,255,20,0.7);
 }
 
 /* ===== CATEGORY DONE BANNER ===== */
