@@ -1,13 +1,9 @@
-// ===== NexVote — Auth Logic =====
+// ===== AUTH LOGIC (Firebase Firestore) =====
+import { db, doc, getDoc, setDoc, collection, query, where, getDocs }
+  from './firebase.js';
 
-// ---- Admin credentials ----
 const ADMIN = { username: 'Lance', password: 'pogi1121' };
 
-// ---- "Database" helpers ----
-function getUsers()  { return JSON.parse(localStorage.getItem('nv_users')  || '[]'); }
-function saveUsers(u){ localStorage.setItem('nv_users',  JSON.stringify(u)); }
-
-// ---- UI helpers ----
 function switchForm(type) {
   document.getElementById('loginForm').classList.toggle('active', type === 'login');
   document.getElementById('signupForm').classList.toggle('active', type === 'signup');
@@ -21,47 +17,61 @@ function showMsg(text, type) {
 }
 
 // ---- Login ----
-function login(e) {
+async function login(e) {
   e.preventDefault();
   const input    = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
 
-  // Check admin credentials first
+  // Admin check
   if (input === ADMIN.username && password === ADMIN.password) {
     sessionStorage.setItem('admin_auth', '1');
     window.location.href = 'admin.html';
     return;
   }
 
-  // Regular user login (email)
-  const email = input.toLowerCase();
-  const user  = getUsers().find(u => u.email === email && u.password === password);
-  if (!user) return showMsg('Invalid email/username or password.', 'error');
-
-  saveSession(user);
-  window.location.href = 'vote.html';
+  showMsg('Signing in…', '');
+  try {
+    const email = input.toLowerCase();
+    const q     = query(collection(db, 'users'), where('email', '==', email));
+    const snap  = await getDocs(q);
+    if (snap.empty) return showMsg('Invalid email/username or password.', 'error');
+    const userDoc = snap.docs[0];
+    const user    = userDoc.data();
+    if (user.password !== password) return showMsg('Invalid email/username or password.', 'error');
+    saveSession({ id: userDoc.id, name: user.name, email: user.email });
+    window.location.href = 'vote.html';
+  } catch (err) {
+    showMsg('Connection error. Check your internet.', 'error');
+  }
 }
 
 // ---- Signup ----
-function signup(e) {
+async function signup(e) {
   e.preventDefault();
   const name     = document.getElementById('signupName').value.trim();
   const email    = document.getElementById('signupEmail').value.trim().toLowerCase();
   const password = document.getElementById('signupPassword').value;
 
-  const users = getUsers();
-  if (users.find(u => u.email === email)) {
-    return showMsg('Email already registered.', 'error');
-  }
-  if (users.find(u => u.name.toLowerCase() === name.toLowerCase())) {
-    return showMsg('Username is already taken.', 'error');
-  }
+  showMsg('Creating account…', '');
+  try {
+    // Check duplicate email
+    const emailQ = query(collection(db, 'users'), where('email', '==', email));
+    const emailSnap = await getDocs(emailQ);
+    if (!emailSnap.empty) return showMsg('Email already registered.', 'error');
 
-  const user = { id: Date.now(), name, email, password };
-  users.push(user);
-  saveUsers(users);
-  saveSession(user);
-  window.location.href = 'vote.html';
+    // Check duplicate username
+    const nameQ = query(collection(db, 'users'), where('nameLower', '==', name.toLowerCase()));
+    const nameSnap = await getDocs(nameQ);
+    if (!nameSnap.empty) return showMsg('Username is already taken.', 'error');
+
+    // Create user doc
+    const newRef = doc(collection(db, 'users'));
+    await setDoc(newRef, { name, nameLower: name.toLowerCase(), email, password, createdAt: Date.now() });
+    saveSession({ id: newRef.id, name, email });
+    window.location.href = 'vote.html';
+  } catch (err) {
+    showMsg('Connection error. Check your internet.', 'error');
+  }
 }
 
 function saveSession(user) {
@@ -73,14 +83,13 @@ function logout() {
   window.location.href = 'index.html';
 }
 
-// ---- Init ----
 window.onload = function () {
-  if (sessionStorage.getItem('admin_auth') === '1') {
-    window.location.href = 'admin.html';
-    return;
-  }
-  if (sessionStorage.getItem('nexvote_session')) {
-    window.location.href = 'vote.html';
-    return;
-  }
+  if (sessionStorage.getItem('admin_auth') === '1') { window.location.href = 'admin.html'; return; }
+  if (sessionStorage.getItem('nexvote_session'))    { window.location.href = 'vote.html';  return; }
 };
+
+// Expose to HTML onclick
+window.login      = login;
+window.signup     = signup;
+window.switchForm = switchForm;
+window.logout     = logout;

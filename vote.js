@@ -1,15 +1,18 @@
-// ===== NexVote — Vote Page Logic =====
+// ===== VOTE PAGE LOGIC (Firebase Firestore) =====
+import { db, doc, getDoc, setDoc, addDoc, collection, query, where,
+         getDocs, onSnapshot, serverTimestamp }
+  from './firebase.js';
 
 const VIDEOS = {
   mrbeast:    { id: 'ha1y3iFhV1U', name: 'Ace Macho',          category: 'entertainment' },
-  markiplier: { id: '5bGCElFBYhk', name: 'Markiplier',        category: 'entertainment' },
-  emma:       { id: 'Ks-_Mh1QhMc', name: 'Emma Chamberlain',  category: 'entertainment' },
-  charli:     { id: 'FlsCjmMhFmw', name: "Charli D'Amelio",   category: 'influencer'    },
-  khaby:      { id: 'Ks-_Mh1QhMc', name: 'Khaby Lame',        category: 'influencer'    },
-  addison:    { id: 'TQ_4MBMFkMk', name: 'Addison Rae',       category: 'influencer'    },
-  ninja:      { id: '5bGCElFBYhk', name: 'Ninja',             category: 'gaming'        },
-  pokimane:   { id: 'FlsCjmMhFmw', name: 'Pokimane',          category: 'gaming'        },
-  shroud:     { id: 'TQ_4MBMFkMk', name: 'Shroud',            category: 'gaming'        },
+  markiplier: { id: '5bGCElFBYhk', name: 'Markiplier',         category: 'entertainment' },
+  emma:       { id: 'Ks-_Mh1QhMc', name: 'Emma Chamberlain',   category: 'entertainment' },
+  charli:     { id: 'FlsCjmMhFmw', name: "Charli D'Amelio",    category: 'influencer'    },
+  khaby:      { id: 'Ks-_Mh1QhMc', name: 'Khaby Lame',         category: 'influencer'    },
+  addison:    { id: 'TQ_4MBMFkMk', name: 'Addison Rae',        category: 'influencer'    },
+  ninja:      { id: '5bGCElFBYhk', name: 'Ninja',              category: 'gaming'        },
+  pokimane:   { id: 'FlsCjmMhFmw', name: 'Pokimane',           category: 'gaming'        },
+  shroud:     { id: 'TQ_4MBMFkMk', name: 'Shroud',             category: 'gaming'        },
 };
 
 const CATEGORY_ORDER = ['entertainment', 'influencer', 'gaming'];
@@ -19,7 +22,9 @@ const CATEGORY_LABELS = {
   gaming:        { emoji: '🎮', name: 'Next-Gen Gaming Creators'                 },
 };
 
-// ===== SHARED COUNTDOWN FORMATTER =====
+const PHANTOM_TOTAL = 342945;
+
+// ===== COUNTDOWN FORMATTER =====
 function formatCountdown(ms) {
   const totalSec = Math.max(0, Math.ceil(ms / 1000));
   const days  = Math.floor(totalSec / 86400);
@@ -34,37 +39,92 @@ function formatCountdown(ms) {
   return parts.join(' ');
 }
 
-
-function getVotes()   { return JSON.parse(localStorage.getItem('nv_votes')  || '[]'); }
-function saveVotes(v) { localStorage.setItem('nv_votes', JSON.stringify(v)); }
-function getRevealState() {
-  return JSON.parse(localStorage.getItem('nv_reveal') || '{"revealed":false,"revealAt":null,"locked":false}');
+// ===== PHANTOM VOTES =====
+function getPhantomVotes() {
+  let seed = localStorage.getItem('nv_phantom_seed');
+  if (!seed) { seed = Date.now().toString(); localStorage.setItem('nv_phantom_seed', seed); }
+  function sr(s) { let x = Math.sin(s) * 10000; return x - Math.floor(x); }
+  let sn = parseInt(seed) % 999983;
+  const phantom = {};
+  CATEGORY_ORDER.forEach(cat => {
+    const creators = Object.keys(VIDEOS).filter(id => VIDEOS[id].category === cat);
+    const r1 = 0.2 + sr(sn++) * 0.6, r2 = 0.2 + sr(sn++) * 0.6;
+    const splits = [r1, r2].sort((a,b) => a-b);
+    const shares = [splits[0], splits[1]-splits[0], 1-splits[1]];
+    creators.forEach((id, i) => { phantom[id] = Math.round(PHANTOM_TOTAL * shares[i]); });
+  });
+  return phantom;
 }
 
+// ===== STATE =====
 let currentModalCreator = null;
 let voteTimerInterval   = null;
-let revealAnimDone      = false; // tracks if count-up animation already ran this session
+let revealState         = { revealed: false, revealAt: null, locked: false };
+let allVotes            = []; // cached from Firestore
+
+// ===== FIRESTORE HELPERS =====
+async function fetchVotes() {
+  const snap = await getDocs(collection(db, 'votes'));
+  allVotes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return allVotes;
+}
+
+async function fetchRevealState() {
+  const snap = await getDoc(doc(db, 'settings', 'reveal'));
+  if (snap.exists()) revealState = snap.data();
+  else revealState = { revealed: false, revealAt: null, locked: false };
+  return revealState;
+}
 
 // ===== INIT =====
-window.onload = function () {
+window.onload = async function () {
   const user = JSON.parse(sessionStorage.getItem('nexvote_session') || 'null');
   if (!user) return window.location.href = 'index.html';
-
   document.getElementById('navUser').textContent = `👤 ${user.name || user.email}`;
 
   hideAllTallies();
+  await fetchVotes();
+  await fetchRevealState();
 
-  const s = getRevealState();
-  if (s.revealed) {
-    if (sessionStorage.getItem('reveal_animated') === '1') {
-      showFinalResults();
-    } else {
-      runSequentialReveal();
-    }
+  if (revealState.revealed) {
+    if (sessionStorage.getItem('reveal_animated') === '1') showFinalResults();
+    else runSequentialReveal();
   }
 
   applyLockState();
   startVoteTimerTick();
+
+  // Listen for real-time reveal state changes
+  onSnapshot(doc(db, 'settings', 'reveal'), snap => {
+    if (!snap.exists()) return;
+    const prev = revealState.revealed;
+    revealState = snap.data();
+
+    if (revealState.revealed && !prev) {
+      if (sessionStorage.getItem('reveal_animated') !== '1') {
+        clearInterval(voteTimerInterval);
+        fetchVotes().then(() => runSequentialReveal());
+      } else {
+        fetchVotes().then(() => showFinalResults());
+      }
+    } else if (!revealState.revealed && prev) {
+      sessionStorage.removeItem('reveal_animated');
+      localStorage.removeItem('nv_phantom_seed');
+      hideAllTallies();
+      document.querySelectorAll('.creator-card.winner').forEach(c => c.classList.remove('winner'));
+      applyLockState();
+      updateVoterBanner(revealState, null, false);
+    } else {
+      applyLockState();
+    }
+  });
+
+  // Listen for real-time vote changes
+  onSnapshot(collection(db, 'votes'), snap => {
+    allVotes = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (revealState.revealed) showFinalResults();
+    applyLockState();
+  });
 };
 
 // ===== HIDE ALL TALLIES =====
@@ -77,86 +137,63 @@ function hideAllTallies() {
   });
 }
 
-// ===== SHOW FINAL RESULTS (no animation, already seen) =====
+// ===== SHOW FINAL RESULTS =====
 function showFinalResults() {
-  const votes    = getVotes();
-  const totals   = buildTotals(votes);
-  const catTotals = buildCatTotals(votes);
-
+  const totals   = buildTotals(allVotes);
+  const catTotals = buildCatTotals(allVotes);
   Object.keys(VIDEOS).forEach(id => {
-    const count   = totals[id] || 0;
-    const cat     = VIDEOS[id].category;
-    const pct     = catTotals[cat] > 0 ? (count / catTotals[cat]) * 100 : 0;
+    const count = totals[id] || 0;
+    const cat   = VIDEOS[id].category;
+    const pct   = catTotals[cat] > 0 ? (count / catTotals[cat]) * 100 : 0;
     const countEl = document.getElementById(`count-${id}`);
     const barEl   = document.getElementById(`bar-${id}`);
     const barWrap = barEl?.closest('.vote-bar-wrap');
-    if (countEl) { countEl.textContent = `${count} vote${count !== 1 ? 's' : ''}`; countEl.style.visibility = 'visible'; }
+    if (countEl) { countEl.textContent = `${count.toLocaleString()} votes`; countEl.style.visibility = 'visible'; }
     if (barEl)   barEl.style.width = pct + '%';
     if (barWrap) barWrap.style.visibility = 'visible';
   });
-
-  // Crown winners
-  CATEGORY_ORDER.forEach(cat => crownWinner(cat, votes));
+  CATEGORY_ORDER.forEach(cat => crownWinner(cat));
 }
 
-// ===== SEQUENTIAL REVEAL ANIMATION =====
+// ===== SEQUENTIAL REVEAL =====
 async function runSequentialReveal() {
   sessionStorage.setItem('reveal_animated', '1');
-  const votes = getVotes();
+  localStorage.setItem('nv_phantom_seed', Date.now().toString());
 
   for (let i = 0; i < CATEGORY_ORDER.length; i++) {
-    const cat = CATEGORY_ORDER[i];
+    const cat   = CATEGORY_ORDER[i];
     const label = CATEGORY_LABELS[cat];
-
-    // Show overlay announcement
     await showRevealOverlay(label.emoji, label.name);
-
-    // Scroll category to center of screen
     const section = document.querySelector(`.category-label.${cat}`)?.closest('.category-section');
     if (section) section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
     await sleep(400);
-
-    // Mark section as actively revealing
     if (section) section.classList.add('revealing');
-
-    // Count up this category
-    await countUpCategory(cat, votes);
-
-    // Pause to let viewers see the result, then crown winner
+    await countUpCategory(cat);
     await sleep(600);
     if (section) section.classList.add('counting-done');
-    crownWinner(cat, votes);
+    crownWinner(cat);
     await sleep(1800);
     if (section) { section.classList.remove('revealing'); section.classList.remove('counting-done'); }
   }
-
-  // All done — show banner
-  updateVoterBanner(getRevealState(), null, false);
+  updateVoterBanner(revealState, null, false);
 }
 
-// ===== SHOW REVEAL OVERLAY =====
 function showRevealOverlay(emoji, name) {
   return new Promise(resolve => {
     const overlay = document.getElementById('revealOverlay');
     document.getElementById('revealOverlayCat').textContent = `${emoji} ${name}`;
     document.getElementById('revealOverlaySub').textContent = 'Category';
     overlay.classList.add('show');
-    setTimeout(() => {
-      overlay.classList.remove('show');
-      setTimeout(resolve, 300);
-    }, 2000);
+    setTimeout(() => { overlay.classList.remove('show'); setTimeout(resolve, 300); }, 2000);
   });
 }
 
-// ===== COUNT UP A SINGLE CATEGORY =====
-function countUpCategory(cat, votes) {
+function countUpCategory(cat) {
   return new Promise(resolve => {
     const creators = Object.keys(VIDEOS).filter(id => VIDEOS[id].category === cat);
-    const totals   = buildTotals(votes);
-    const catTotal = creators.reduce((sum, id) => sum + (totals[id] || 0), 0);
+    const totals   = buildTotals(allVotes);
+    const catTotal = creators.reduce((s, id) => s + (totals[id] || 0), 0);
 
-    // Make bars/counts visible and add counting class
     creators.forEach(id => {
       const countEl = document.getElementById(`count-${id}`);
       const barEl   = document.getElementById(`bar-${id}`);
@@ -165,62 +202,45 @@ function countUpCategory(cat, votes) {
       if (barEl)   { barEl.style.width = '0%'; barEl.classList.add('counting'); }
       if (barWrap) { barWrap.style.visibility = 'visible'; barWrap.classList.add('counting'); }
     });
+
     if (catTotal === 0) { resolve(); return; }
 
-    const duration  = 3000; // ms for full count-up
-    const startTime = performance.now();
-    const targets   = {};
+    const duration = 3000, startTime = performance.now();
+    const targets  = {};
     creators.forEach(id => { targets[id] = totals[id] || 0; });
 
     function tick(now) {
-      const elapsed  = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      // Ease out cubic for dramatic slow-down at the end
+      const progress = Math.min((now - startTime) / duration, 1);
       const eased    = 1 - Math.pow(1 - progress, 3);
-
       creators.forEach(id => {
-        const current  = Math.round(eased * targets[id]);
-        const finalPct = catTotal > 0 ? (targets[id] / catTotal) * 100 : 0;
-        const curPct   = eased * finalPct;
-        const countEl  = document.getElementById(`count-${id}`);
-        const barEl    = document.getElementById(`bar-${id}`);
-        if (countEl) countEl.textContent = `${current} vote${current !== 1 ? 's' : ''}`;
-        if (barEl)   barEl.style.width   = curPct + '%';
+        const cur = Math.round(eased * targets[id]);
+        const pct = eased * (catTotal > 0 ? (targets[id] / catTotal) * 100 : 0);
+        const countEl = document.getElementById(`count-${id}`);
+        const barEl   = document.getElementById(`bar-${id}`);
+        if (countEl) countEl.textContent = `${cur.toLocaleString()} votes`;
+        if (barEl)   barEl.style.width   = pct + '%';
       });
-
-      if (progress < 1) {
-        requestAnimationFrame(tick);
-      } else {
-        // Snap to exact final values
-        creators.forEach(id => {
-          const countEl = document.getElementById(`count-${id}`);
-          const barEl   = document.getElementById(`bar-${id}`);
-          const barWrap = barEl?.closest('.vote-bar-wrap');
-          const finalPct = catTotal > 0 ? (targets[id] / catTotal) * 100 : 0;
-          if (countEl) { countEl.textContent = `${targets[id]} vote${targets[id] !== 1 ? 's' : ''}`; countEl.classList.remove('counting'); }
-          if (barEl)   { barEl.style.width = finalPct + '%'; barEl.classList.remove('counting'); }
-          if (barWrap) barWrap.classList.remove('counting');
-        });
-        resolve();
-      }
+      if (progress < 1) { requestAnimationFrame(tick); return; }
+      creators.forEach(id => {
+        const countEl = document.getElementById(`count-${id}`);
+        const barEl   = document.getElementById(`bar-${id}`);
+        const barWrap = barEl?.closest('.vote-bar-wrap');
+        const pct = catTotal > 0 ? (targets[id] / catTotal) * 100 : 0;
+        if (countEl) { countEl.textContent = `${targets[id].toLocaleString()} votes`; countEl.classList.remove('counting'); }
+        if (barEl)   { barEl.style.width = pct + '%'; barEl.classList.remove('counting'); }
+        if (barWrap) barWrap.classList.remove('counting');
+      });
+      resolve();
     }
-
     requestAnimationFrame(tick);
   });
 }
 
-// ===== CROWN THE WINNER =====
-function crownWinner(cat, votes) {
-  const creators  = Object.keys(VIDEOS).filter(id => VIDEOS[id].category === cat);
-  const totals    = buildTotals(votes);
-  let   maxVotes  = -1;
-  let   winnerId  = null;
-
-  creators.forEach(id => {
-    const count = totals[id] || 0;
-    if (count > maxVotes) { maxVotes = count; winnerId = id; }
-  });
-
+function crownWinner(cat) {
+  const creators = Object.keys(VIDEOS).filter(id => VIDEOS[id].category === cat);
+  const totals   = buildTotals(allVotes);
+  let maxVotes = -1, winnerId = null;
+  creators.forEach(id => { const c = totals[id] || 0; if (c > maxVotes) { maxVotes = c; winnerId = id; } });
   if (winnerId && maxVotes > 0) {
     const card = document.querySelector(`.creator-card[data-id="${winnerId}"]`);
     if (card) card.classList.add('winner');
@@ -229,13 +249,15 @@ function crownWinner(cat, votes) {
 
 // ===== HELPERS =====
 function buildTotals(votes) {
-  const t = {};
-  votes.forEach(v => { t[v.creator_id] = (t[v.creator_id] || 0) + 1; });
+  const t = {}, phantom = getPhantomVotes();
+  votes.forEach(v => { t[v.creatorId] = (t[v.creatorId] || 0) + 1; });
+  Object.keys(phantom).forEach(id => { t[id] = (t[id] || 0) + phantom[id]; });
   return t;
 }
 function buildCatTotals(votes) {
-  const t = { entertainment: 0, influencer: 0, gaming: 0 };
+  const t = { entertainment: 0, influencer: 0, gaming: 0 }, phantom = getPhantomVotes();
   votes.forEach(v => { if (t[v.category] !== undefined) t[v.category]++; });
+  Object.keys(VIDEOS).forEach(id => { const cat = VIDEOS[id].category; if (t[cat] !== undefined) t[cat] += (phantom[id] || 0); });
   return t;
 }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -243,81 +265,43 @@ function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 // ===== TIMER TICK =====
 function startVoteTimerTick() {
   clearInterval(voteTimerInterval);
-  voteTimerInterval = setInterval(checkRevealTick, 1000);
-}
-
-function checkRevealTick() {
-  const s         = getRevealState();
-  const now       = Date.now();
-  const revealAt  = s.revealAt ? new Date(s.revealAt).getTime() : null;
-  const remaining = revealAt ? revealAt - now : null;
-
-  // Auto-reveal when timer hits zero
-  if (revealAt && remaining <= 0 && !s.revealed) {
-    s.revealed = true; s.revealAt = null; s.locked = false;
-    localStorage.setItem('nv_reveal', JSON.stringify(s));
-  }
-
-  // Trigger animation when revealed for the first time this session
-  if (s.revealed && sessionStorage.getItem('reveal_animated') !== '1') {
-    clearInterval(voteTimerInterval);
-    runSequentialReveal();
-    return;
-  }
-
-  // If not revealed, make sure tallies are hidden
-  if (!s.revealed) {
-    hideAllTallies();
-    document.querySelectorAll('.creator-card.winner').forEach(c => c.classList.remove('winner'));
-  }
-
-  applyLockState();
-  updateVoterBanner(s, remaining, !s.revealed && (s.locked || (remaining !== null && remaining <= 30000)));
+  voteTimerInterval = setInterval(() => {
+    const remaining = revealState.revealAt ? new Date(revealState.revealAt).getTime() - Date.now() : null;
+    if (!revealState.revealed) {
+      hideAllTallies();
+      document.querySelectorAll('.creator-card.winner').forEach(c => c.classList.remove('winner'));
+    }
+    applyLockState();
+    updateVoterBanner(revealState, remaining, !revealState.revealed && (revealState.locked || (remaining !== null && remaining <= 30000)));
+  }, 1000);
 }
 
 // ===== APPLY LOCK STATE =====
 function applyLockState() {
-  const s         = getRevealState();
-  const remaining = s.revealAt ? new Date(s.revealAt).getTime() - Date.now() : null;
-  const isLocked  = !s.revealed && (s.locked || (remaining !== null && remaining <= 30000));
-
+  const remaining = revealState.revealAt ? new Date(revealState.revealAt).getTime() - Date.now() : null;
+  const isLocked  = !revealState.revealed && (revealState.locked || (remaining !== null && remaining <= 30000));
   const user      = JSON.parse(sessionStorage.getItem('nexvote_session') || 'null');
-  const userVotes = user ? getVotes().filter(v => String(v.user_id) === String(user.id)) : [];
+  const userVotes = allVotes.filter(v => v.userId === user?.id);
 
-  // Full DOM sync — reset every card then re-apply current state
   document.querySelectorAll('.creator-card').forEach(card => {
     const creatorId = card.dataset.id;
     const category  = card.dataset.category;
     const btn       = card.querySelector('.btn-vote');
-    const hasVoted  = userVotes.some(v => v.category === category && v.creator_id === creatorId);
+    const hasVoted  = userVotes.some(v => v.category === category && v.creatorId === creatorId);
     const catVoted  = userVotes.some(v => v.category === category);
-
-    // Remove stale winner/voted classes first
     card.classList.remove('winner');
-
     if (hasVoted) {
-      // This creator was voted for
       card.classList.add('voted');
       if (btn) { btn.textContent = '✓ Voted'; btn.classList.add('voted-btn'); btn.disabled = true; }
     } else if (catVoted) {
-      // Another creator in this category was voted for — disable but don't mark voted
       card.classList.remove('voted');
       if (btn) { btn.textContent = 'Vote'; btn.classList.remove('voted-btn'); btn.disabled = true; }
     } else {
-      // No vote cast in this category yet
       card.classList.remove('voted');
-      if (btn) {
-        btn.classList.remove('voted-btn');
-        btn.disabled  = isLocked;
-        btn.textContent = isLocked ? '🔒 Locked' : 'Vote';
-      }
+      if (btn) { btn.classList.remove('voted-btn'); btn.disabled = isLocked; btn.textContent = isLocked ? '🔒 Locked' : 'Vote'; }
     }
   });
-
-  // Re-crown winners if revealed
-  if (s.revealed) {
-    CATEGORY_ORDER.forEach(cat => crownWinner(cat, getVotes()));
-  }
+  if (revealState.revealed) CATEGORY_ORDER.forEach(cat => crownWinner(cat));
 }
 
 // ===== VOTER BANNER =====
@@ -326,11 +310,9 @@ function updateVoterBanner(s, remaining, isLocked) {
   if (!banner) {
     banner = document.createElement('div');
     banner.id = 'voterBanner';
-    banner.style.cssText = `position:fixed;top:64px;left:0;right:0;z-index:200;
-      text-align:center;padding:10px 20px;font-size:0.85rem;font-weight:700;letter-spacing:1px;transition:all 0.3s;`;
+    banner.style.cssText = `position:fixed;top:64px;left:0;right:0;z-index:200;text-align:center;padding:10px 20px;font-size:0.85rem;font-weight:700;letter-spacing:1px;`;
     document.body.appendChild(banner);
   }
-
   if (s.revealed) {
     banner.style.cssText += 'background:linear-gradient(90deg,rgba(57,255,20,0.15),rgba(57,255,20,0.08));border-bottom:1px solid rgba(57,255,20,0.3);color:#39ff14;display:block;';
     banner.textContent = '🏆 Results are now revealed!';
@@ -348,33 +330,22 @@ function updateVoterBanner(s, remaining, isLocked) {
   }
 }
 
-// ===== OPEN VIDEO MODAL =====
+// ===== VIDEO MODAL =====
 function openVideo(creatorId) {
   const creator = VIDEOS[creatorId];
   if (!creator) return;
-
   currentModalCreator = creatorId;
   document.getElementById('modalCreatorName').textContent = `▶ ${creator.name} — Highlights`;
-  document.getElementById('videoFrame').src =
-    `https://www.youtube.com/embed/${creator.id}?autoplay=1&rel=0`;
-
+  document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${creator.id}?autoplay=1&rel=0`;
   const user         = JSON.parse(sessionStorage.getItem('nexvote_session') || 'null');
-  const userVotes    = getVotes().filter(v => String(v.user_id) === String(user?.id));
+  const userVotes    = allVotes.filter(v => v.userId === user?.id);
   const alreadyVoted = userVotes.some(v => v.category === creator.category);
-  const s            = getRevealState();
-  const isLocked     = !s.revealed && (s.locked || (s.revealAt && (new Date(s.revealAt).getTime() - Date.now()) <= 30000));
-
+  const remaining    = revealState.revealAt ? new Date(revealState.revealAt).getTime() - Date.now() : null;
+  const isLocked     = !revealState.revealed && (revealState.locked || (remaining !== null && remaining <= 30000));
   const voteBtn = document.getElementById('modalVoteBtn');
-  if (alreadyVoted) {
-    voteBtn.textContent = '✓ Already Voted'; voteBtn.disabled = true;
-  } else if (isLocked) {
-    voteBtn.textContent = '🔒 Voting Locked'; voteBtn.disabled = true;
-  } else {
-    voteBtn.textContent = `Vote for ${creator.name}`;
-    voteBtn.disabled    = false;
-    voteBtn.onclick     = () => { closeVideoModal(); castVote(creator.category, creatorId); };
-  }
-
+  if (alreadyVoted)  { voteBtn.textContent = '✓ Already Voted'; voteBtn.disabled = true; }
+  else if (isLocked) { voteBtn.textContent = '🔒 Voting Locked'; voteBtn.disabled = true; }
+  else { voteBtn.textContent = `Vote for ${creator.name}`; voteBtn.disabled = false; voteBtn.onclick = () => { closeVideoModal(); castVote(creator.category, creatorId); }; }
   document.getElementById('videoModal').classList.add('open');
 }
 
@@ -383,50 +354,40 @@ function closeVideoModal() {
   document.getElementById('videoFrame').src = '';
   currentModalCreator = null;
 }
-
-function closeModal(e) {
-  if (e.target === document.getElementById('videoModal')) closeVideoModal();
-}
+function closeModal(e) { if (e.target === document.getElementById('videoModal')) closeVideoModal(); }
 
 // ===== CAST VOTE =====
-function castVote(category, creatorId) {
-  const s         = getRevealState();
-  const remaining = s.revealAt ? new Date(s.revealAt).getTime() - Date.now() : null;
-  const isLocked  = !s.revealed && (s.locked || (remaining !== null && remaining <= 30000));
+async function castVote(category, creatorId) {
+  const remaining = revealState.revealAt ? new Date(revealState.revealAt).getTime() - Date.now() : null;
+  const isLocked  = !revealState.revealed && (revealState.locked || (remaining !== null && remaining <= 30000));
   if (isLocked) return showToast('🔒 Voting is locked.');
 
   const user = JSON.parse(sessionStorage.getItem('nexvote_session') || 'null');
   if (!user) return window.location.href = 'index.html';
 
-  const votes        = getVotes();
-  const alreadyVoted = votes.some(v => String(v.user_id) === String(user.id) && v.category === category);
-  if (alreadyVoted)  return showToast(`You already voted in ${category}!`);
+  const alreadyVoted = allVotes.some(v => v.userId === user.id && v.category === category);
+  if (alreadyVoted) return showToast(`You already voted in this category!`);
 
-  votes.push({ user_id: user.id, creator_id: creatorId, category, voted_at: new Date().toISOString() });
-  saveVotes(votes);
-
-  markVoted(category, creatorId);
-  showToast(`Voted for ${VIDEOS[creatorId].name}! 🎉`);
-}
-
-// ===== MARK VOTED UI =====
-function markVoted(category, votedId) {
-  document.querySelectorAll(`.creator-card[data-category="${category}"] .btn-vote`).forEach(btn => {
-    btn.disabled = true;
-  });
-  const card = document.querySelector(`.creator-card[data-id="${votedId}"]`);
-  if (card) {
-    card.classList.add('voted');
-    const btn = card.querySelector('.btn-vote');
-    if (btn) { btn.textContent = '✓ Voted'; btn.classList.add('voted-btn'); }
+  try {
+    await addDoc(collection(db, 'votes'), {
+      userId: user.id, creatorId, category,
+      votedAt: Date.now()
+    });
+    showToast(`Voted for ${VIDEOS[creatorId].name}! 🎉`);
+  } catch (err) {
+    showToast('Failed to save vote. Check your connection.');
   }
 }
 
-// ===== TOAST =====
+function markVoted(category, votedId) {
+  document.querySelectorAll(`.creator-card[data-category="${category}"] .btn-vote`).forEach(btn => { btn.disabled = true; });
+  const card = document.querySelector(`.creator-card[data-id="${votedId}"]`);
+  if (card) { card.classList.add('voted'); const btn = card.querySelector('.btn-vote'); if (btn) { btn.textContent = '✓ Voted'; btn.classList.add('voted-btn'); } }
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
+  t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
@@ -436,33 +397,6 @@ function logout() {
   window.location.href = 'index.html';
 }
 
-// ===== LISTEN FOR ADMIN CHANGES (cross-tab) =====
-window.addEventListener('storage', function (e) {
-  if (e.key === 'nv_reset_signal') {
-    sessionStorage.removeItem('reveal_animated');
-    hideAllTallies();
-    document.querySelectorAll('.creator-card.winner').forEach(c => c.classList.remove('winner'));
-    applyLockState();
-    updateVoterBanner(getRevealState(), null, false);
-  }
-
-  if (e.key === 'nv_reveal_change') {
-    const s = getRevealState();
-    if (s.revealed) {
-      // Trigger reveal animation if not yet seen this session
-      if (sessionStorage.getItem('reveal_animated') !== '1') {
-        clearInterval(voteTimerInterval);
-        runSequentialReveal();
-      } else {
-        showFinalResults();
-      }
-    } else {
-      // Hide results — clear tallies, crowns, banner
-      sessionStorage.removeItem('reveal_animated');
-      hideAllTallies();
-      document.querySelectorAll('.creator-card.winner').forEach(c => c.classList.remove('winner'));
-      applyLockState();
-      updateVoterBanner(s, null, false);
-    }
-  }
-});
+// Expose to HTML
+window.openVideo = openVideo; window.closeVideoModal = closeVideoModal;
+window.closeModal = closeModal; window.castVote = castVote; window.logout = logout;
