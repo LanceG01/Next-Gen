@@ -7,12 +7,15 @@ const VIDEOS = {
   mrbeast:    { id: 'ha1y3iFhV1U', name: 'Ace Macho',          category: 'entertainment' },
   markiplier: { id: '5bGCElFBYhk', name: 'Markiplier',         category: 'entertainment' },
   emma:       { id: 'Ks-_Mh1QhMc', name: 'Emma Chamberlain',   category: 'entertainment' },
+  ent4:       { id: 'dQw4w9WgXcQ', name: 'Creator 4',           category: 'entertainment' },
   charli:     { id: 'FlsCjmMhFmw', name: "Charli D'Amelio",    category: 'influencer'    },
   khaby:      { id: 'Ks-_Mh1QhMc', name: 'Khaby Lame',         category: 'influencer'    },
   addison:    { id: 'TQ_4MBMFkMk', name: 'Addison Rae',        category: 'influencer'    },
+  inf4:       { id: 'dQw4w9WgXcQ', name: 'Creator 4',           category: 'influencer'    },
   ninja:      { id: '5bGCElFBYhk', name: 'Ninja',              category: 'gaming'        },
   pokimane:   { id: 'FlsCjmMhFmw', name: 'Pokimane',           category: 'gaming'        },
   shroud:     { id: 'TQ_4MBMFkMk', name: 'Shroud',             category: 'gaming'        },
+  gam4:       { id: 'dQw4w9WgXcQ', name: 'Creator 4',           category: 'gaming'        },
 };
 
 const CATEGORY_ORDER = ['entertainment', 'influencer', 'gaming'];

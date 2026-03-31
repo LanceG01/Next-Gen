@@ -6,12 +6,15 @@ const CREATOR_NAMES = {
   mrbeast:    { name: 'Ace Macho',          category: 'entertainment' },
   markiplier: { name: 'Markiplier',         category: 'entertainment' },
   emma:       { name: 'Emma Chamberlain',   category: 'entertainment' },
+  ent4:       { name: 'Creator 4',           category: 'entertainment' },
   charli:     { name: "Charli D'Amelio",    category: 'influencer'    },
   khaby:      { name: 'Khaby Lame',         category: 'influencer'    },
   addison:    { name: 'Addison Rae',        category: 'influencer'    },
+  inf4:       { name: 'Creator 4',           category: 'influencer'    },
   ninja:      { name: 'Ninja',              category: 'gaming'        },
   pokimane:   { name: 'Pokimane',           category: 'gaming'        },
   shroud:     { name: 'Shroud',             category: 'gaming'        },
+  gam4:       { name: 'Creator 4',           category: 'gaming'        },
 };
 
 function formatCountdown(ms) {
