@@ -366,7 +366,7 @@ function openVideo(creatorId) {
   }
 
   currentModalCreator = creatorId;
-  document.getElementById('modalCreatorName').textContent = `▶ ${creator.name} — Highlights`;
+  document.getElementById('modalCreatorName').textContent = `▶ ${creator.name} — Watch their video`;
   document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${creator.id}?autoplay=1&rel=0`;
   const user         = JSON.parse(sessionStorage.getItem('nexvote_session') || 'null');
   const userVotes    = allVotes.filter(v => v.userId === user?.id);
