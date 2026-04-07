@@ -11,7 +11,7 @@ const CREATOR_NAMES = {
   smartfit:        { name: 'Smartfit',          category: 'influencer'    },
   celinemurillo:   { name: 'Celine Murillo',    category: 'influencer'    },
   docdex:          { name: 'Doc.dex',           category: 'influencer'    },
-  dqwnhill:        { name: 'dqwnhill',          category: 'gaming'        },
+  dqwnhill:        { name: 'Dqwnhill',          category: 'gaming'        },
   kapitanpugo:     { name: 'Kapitan Pugo',      category: 'gaming'        },
   jungfps:         { name: 'JungFPS',           category: 'gaming'        },
   thegalaxyboys:   { name: 'TheGalaxyBoys',     category: 'gaming'        },

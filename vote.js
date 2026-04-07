@@ -12,7 +12,7 @@ const VIDEOS = {
   smartfit:       { id: 'zgiBI7jn7F8', name: 'Smartfit',           category: 'influencer'    },
   celinemurillo:  { id: 'zeTC16K9OL4', name: 'Celine Murillo',     category: 'influencer'    },
   docdex:         { id: 'NdvLlNZj-rE', name: 'Doc.dex',            category: 'influencer'    },
-  dqwnhill:       { id: 'qFSWOdCwkQg', name: 'dqwnhill',           category: 'gaming'        },
+  dqwnhill:       { id: 'qFSWOdCwkQg', name: 'Dqwnhill',           category: 'gaming'        },
   kapitanpugo:    { id: 'K6GjDZkcnwA', name: 'Kapitan Pugo',       category: 'gaming'        },
   jungfps:        { id: 'py5Pi7pEC4A', name: 'JungFPS',            category: 'gaming'        },
   thegalaxyboys:  { id: 'gtE4naqqlbE', name: 'TheGalaxyBoys',      category: 'gaming'        },
