@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="blur1"/>
+      <feGaussianBlur stdDeviation="7" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- flat-top hexagon -->
+  <polygon
+    points="50,8 88,29 88,71 50,92 12,71 12,29"
+    stroke="#d946ef"
+    stroke-width="5.5"
+    stroke-linejoin="round"
+    filter="url(#glow)"
+  />
+</svg>

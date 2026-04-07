@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Next-Gen: Recognizing Up-and-Coming Content Creators</title>
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page-transition-wrap">
+  <div class="stars"></div>
+  <div class="auth-wrapper">
+    <div class="auth-card" id="authCard">
+      <div class="logo">
+        <img src="images/logo.svg" alt="Next-Gen Logo" class="logo-img" />
+        <h1>Next-Gen</h1>
+        <p class="tagline">Recognizing Up-and-Coming Content Creators</p>
+      </div>
+
+      <!-- Login Form -->
+      <form id="loginForm" class="auth-form active" onsubmit="login(event)">
+        <div class="form-group">
+          <label for="loginEmail">Email or Username</label>
+          <input type="text" id="loginEmail" placeholder="you@example.com or username" required />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="loginPassword" placeholder="••••••••" required />
+            <button type="button" class="btn-eye" onclick="togglePw('loginPassword', this)">👁</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Login</button>
+        <p class="switch-text">No account? <a onclick="switchForm('signup')">Sign Up</a></p>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="signupForm" class="auth-form" onsubmit="signup(event)">
+        <div class="form-group">
+          <label for="signupName">Username</label>
+          <input type="text" id="signupName" placeholder="Choose a username" required />
+        </div>
+        <div class="form-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" placeholder="you@example.com" required />
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="signupPassword" placeholder="Min 6 characters" required minlength="6" />
+            <button type="button" class="btn-eye" onclick="togglePw('signupPassword', this)">👁</button>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary">Create Account</button>
+        <p class="switch-text">Have an account? <a onclick="switchForm('login')">Login</a></p>
+      </form>
+
+      <div id="authMsg" class="auth-msg"></div>
+    </div>
+  </div>
+
+  </div><!-- end .page-transition-wrap -->
+  <div class="depth-fade" id="depthFade"></div>
+
+  <script type="module" src="app.js"></script>
+  <script>
+    function togglePw(id, btn) {
+      const input = document.getElementById(id);
+      const show  = input.type === 'password';
+      input.type  = show ? 'text' : 'password';
+      btn.textContent = show ? '🙈' : '👁';
+    }
+    window.togglePw = togglePw;
+    // Page enter animation
+    document.addEventListener('click', function (e) {
+      const a = e.target.closest('a[href]');
+      if (!a) return;
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') || a.target === '_blank') return;
+      e.preventDefault();
+      document.body.classList.add('page-exit');
+      setTimeout(() => { window.location.href = href; }, 300);
+    });
+  </script>
+</body>
+</html>

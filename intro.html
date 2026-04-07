@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome — Next-Gen Streamers</title>
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .intro-wrapper {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .intro-card {
+      background: linear-gradient(145deg, rgba(19,0,32,0.95), rgba(15,0,24,0.98));
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 44px;
+      width: 100%;
+      max-width: 760px;
+      box-shadow:
+        0 0 40px rgba(123,47,255,0.2),
+        0 0 80px rgba(123,47,255,0.08),
+        inset 0 1px 0 rgba(168,85,247,0.15);
+      backdrop-filter: blur(20px);
+      text-align: center;
+    }
+
+    .intro-logo-icon {
+      font-size: 3rem;
+      color: var(--neon-glow);
+      filter: drop-shadow(0 0 14px var(--neon));
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    .intro-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, var(--violet), var(--neon-glow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .intro-subtitle {
+      color: var(--muted);
+      font-size: 0.82rem;
+      letter-spacing: 1px;
+      margin-bottom: 32px;
+    }
+
+    .intro-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin-bottom: 28px;
+    }
+
+    .intro-body {
+      color: var(--text);
+      font-size: 0.97rem;
+      line-height: 1.85;
+      text-align: left;
+      margin-bottom: 36px;
+    }
+
+    .intro-body p { margin-bottom: 18px; }
+    .intro-body p:last-child { margin-bottom: 0; }
+
+    .intro-body a {
+      color: var(--violet);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .intro-body a:hover { color: var(--neon-glow); }
+
+    .btn-go-vote {
+      display: inline-block;
+      padding: 14px 52px;
+      background: linear-gradient(135deg, var(--purple), var(--neon));
+      border: none;
+      border-radius: 10px;
+      color: var(--white);
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      cursor: pointer;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(123,47,255,0.45);
+    }
+    .btn-go-vote:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 32px rgba(192,38,211,0.55);
+    }
+    .btn-go-vote:active { transform: translateY(0); }
+
+    @media (max-width: 600px) {
+      .intro-card { padding: 28px 20px; }
+      .intro-title { font-size: 1.4rem; }
+      .intro-body { font-size: 0.88rem; }
+      .btn-go-vote { padding: 12px 36px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-transition-wrap">
+  <div class="stars"></div>
+  <div class="intro-wrapper">
+    <div class="intro-card">
+      <img src="images/logo.svg" alt="Next-Gen Logo" class="logo-img" style="width:64px;height:64px;margin-bottom:12px;" />
+      <h1 class="intro-title">Next-Gen</h1>
+      <p class="intro-subtitle">Recognizing Up-and-Coming Content Creators</p>
+
+      <div class="intro-divider"></div>
+
+      <div class="intro-body">
+        <p>
+          Next-Gen: Recognizing Up-and-Coming Content Creators is an awards platform dedicated to celebrating
+          and elevating the rising stars of content creating over the past year. As one of the first
+          systems focused specifically on emerging talent, we aim to shine a spotlight on creators who
+          are shaping the future of online entertainment.
+        </p>
+        <p>
+          Our mission is to honor content creators who not only produce engaging and original content
+          but also build vibrant, welcoming communities that connect people around the world. We track
+          trends, understand the pulse of the content-creating world, and feature awards per categories
+          covering a wide range of influence, content styles, and community experiences.
+        </p>
+        <p>
+          Why does this matter? Because it's you — the viewers and supporters — who have the power to
+          nominate and select the winners. Your voice decides who gets recognized for their creativity,
+          dedication, and impact. As we, creators believe that you — supporters — know exactly who
+          ultimately deserves these recognitions.
+        </p>
+        <p>
+          The Next-Gen Streamer Awards 2025 will be held across multiple conventions, giving fans the
+          chance to experience the excitement live and in person. Join us as your favorite streamers
+          walk the red carpet, take part in live interviews, enjoy special performances, and celebrate
+          the awards ceremony up close. Check the schedule for each convention location and don't miss
+          out on this immersive experience that brings the streaming community together like never
+          before. <a href="https://lanceg01.github.io/Next-Gen/" target="_blank" rel="noopener">@https://lanceg01.github.io/Next-Gen/</a>
+        </p>
+      </div>
+
+      <a href="vote.html" class="btn-go-vote">Start Voting</a>
+    </div>
+  </div>
+
+  </div><!-- end .page-transition-wrap -->
+  <div class="depth-fade" id="depthFade"></div>
+
+  <script>
+    if (!sessionStorage.getItem('nexvote_session')) {
+      window.location.href = 'index.html';
+    }
+    document.addEventListener('click', function (e) {
+      const a = e.target.closest('a[href]');
+      if (!a) return;
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') || a.target === '_blank') return;
+      e.preventDefault();
+      document.body.classList.add('page-exit');
+      setTimeout(() => { window.location.href = href; }, 300);
+    });
+  </script>
+</body>
+</html>

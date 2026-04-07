@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Next-Gen: Recognizing Up-and-Coming Content Creators</title>
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page-transition-wrap">
+  <div class="stars"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-logo"><img src="images/logo.svg" alt="Next-Gen Logo" class="nav-logo-img" /> </div>
+    <div class="nav-right">
+      <span id="navUser" class="nav-user"></span>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <main class="vote-main">
+    <div class="vote-header">
+      <h2>Next-Gen: Recognizing Up-and-Coming Content Creators</h2>
+      <p>Watch their highlights, then cast your vote. One vote per category.</p>
+    </div>
+
+      <!-- ENTERTAINMENT -->
+    <section class="category-section">
+      <div class="category-label entertainment">🎬 Next-Gen Media & Entertainment Creators</div>
+      <div class="category-done-banner" id="done-entertainment">✅ You've voted in this category</div>
+      <div class="creators-grid" id="entertainmentGrid">
+
+        <div class="creator-card" data-category="entertainment" data-id="mightymagulang" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('mightymagulang')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Mighty Magulang" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Mighty Magulang</h3>
+            <p>Educational content on history, ancestry, civics, and logical thinking</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-mightymagulang"></div></div>
+            <span class="vote-count" id="count-mightymagulang">0 votes</span>
+            <button class="btn-vote" onclick="castVote('entertainment','mightymagulang')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="entertainment" data-id="exposed" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('exposed')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Exposed" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Exposed</h3>
+            <p>Short and playful prank videos capturing genuine reactions</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-exposed"></div></div>
+            <span class="vote-count" id="count-exposed">0 votes</span>
+            <button class="btn-vote" onclick="castVote('entertainment','exposed')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="entertainment" data-id="leomiho" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('leomiho')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Leomiho" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Leomiho</h3>
+            <p>PWD creator sharing fun, honest, and relatable daily life content</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-leomiho"></div></div>
+            <span class="vote-count" id="count-leomiho">0 votes</span>
+            <button class="btn-vote" onclick="castVote('entertainment','leomiho')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="entertainment" data-id="renzomaano" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('renzomaano')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="renzomaano" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>renzomaano</h3>
+            <p>Entertaining content exploring Philippine biology, geology, and natural science</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-renzomaano"></div></div>
+            <span class="vote-count" id="count-renzomaano">0 votes</span>
+            <button class="btn-vote" onclick="castVote('entertainment','renzomaano')">Vote</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- INFLUENCER -->
+    <section class="category-section">
+      <div class="category-label influencer">✨ Next-Gen Social Impact Creators</div>
+      <div class="category-done-banner" id="done-influencer">✅ You've voted in this category</div>
+      <div class="creators-grid" id="influencerGrid">
+
+        <div class="creator-card" data-category="influencer" data-id="geloyconcepcion" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('geloyconcepcion')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Geloy Concepcion" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Geloy Concepcion</h3>
+            <p>Meaningful content about life, loved ones, and inspiring messages of hope</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-geloyconcepcion"></div></div>
+            <span class="vote-count" id="count-geloyconcepcion">0 votes</span>
+            <button class="btn-vote" onclick="castVote('influencer','geloyconcepcion')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="influencer" data-id="smartfit" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('smartfit')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Smartfit" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Smartfit</h3>
+            <p>Fitness tips, workout routines, and maintaining a healthy lifestyle</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-smartfit"></div></div>
+            <span class="vote-count" id="count-smartfit">0 votes</span>
+            <button class="btn-vote" onclick="castVote('influencer','smartfit')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="influencer" data-id="celinemurillo" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('celinemurillo')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Celine Murillo" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Celine Murillo</h3>
+            <p>Highlights Philippine nature, wildlife, and environmental conservation</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-celinemurillo"></div></div>
+            <span class="vote-count" id="count-celinemurillo">0 votes</span>
+            <button class="btn-vote" onclick="castVote('influencer','celinemurillo')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="influencer" data-id="docdex" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('docdex')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Doc.dex" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Doc.dex</h3>
+            <p>Medical doctor sharing informative health and nutrition advice</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-docdex"></div></div>
+            <span class="vote-count" id="count-docdex">0 votes</span>
+            <button class="btn-vote" onclick="castVote('influencer','docdex')">Vote</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- GAMING -->
+    <section class="category-section">
+      <div class="category-label gaming">🎮 Next-Gen Gaming Creators</div>
+      <div class="category-done-banner" id="done-gaming">✅ You've voted in this category</div>
+      <div class="creators-grid" id="gamingGrid">
+
+        <div class="creator-card" data-category="gaming" data-id="dqwnhill" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('dqwnhill')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="dqwnhill" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>dqwnhill</h3>
+            <p>Valorant streamer delivering entertaining gameplay and engaging live streams</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-dqwnhill"></div></div>
+            <span class="vote-count" id="count-dqwnhill">0 votes</span>
+            <button class="btn-vote" onclick="castVote('gaming','dqwnhill')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="gaming" data-id="kapitanpugo" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('kapitanpugo')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="Kapitan Pugo" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>Kapitan Pugo</h3>
+            <p>League of Legends streamer with fun gameplay and viewer interaction</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-kapitanpugo"></div></div>
+            <span class="vote-count" id="count-kapitanpugo">0 votes</span>
+            <button class="btn-vote" onclick="castVote('gaming','kapitanpugo')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="gaming" data-id="jungfps" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('jungfps')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="JungFPS" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>JungFPS</h3>
+            <p>Valorant creator known for hilarious gameplay highlights and funny moments</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-jungfps"></div></div>
+            <span class="vote-count" id="count-jungfps">0 votes</span>
+            <button class="btn-vote" onclick="castVote('gaming','jungfps')">Vote</button>
+          </div>
+        </div>
+
+        <div class="creator-card" data-category="gaming" data-id="thegalaxyboys" data-voted="false">
+          <div class="creator-thumb" onclick="openVideo('thegalaxyboys')">
+            <img src="https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg" alt="TheGalaxyBoys" />
+            <div class="play-overlay"><span>▶</span></div>
+          </div>
+          <div class="creator-info">
+            <h3>TheGalaxyBoys</h3>
+            <p>Horror game content with humorous reactions and dances on stream gifts</p>
+            <div class="vote-bar-wrap"><div class="vote-bar" id="bar-thegalaxyboys"></div></div>
+            <span class="vote-count" id="count-thegalaxyboys">0 votes</span>
+            <button class="btn-vote" onclick="castVote('gaming','thegalaxyboys')">Vote</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-links">
+      <div>
+        <a href="#" onclick="openAboutModal(); return false;">About Us</a>
+      </div>
+    </div>
+    <div class="footer-divider"></div>
+    <p class="footer-copy">© 2025 Next-Gen Streamer Awards. All rights reserved.</p>
+  </footer>
+
+  </div><!-- end .page-transition-wrap -->
+  <div class="depth-fade" id="depthFade"></div>
+
+  <!-- Calculating Tally Overlay -->
+  <div class="calculating-overlay" id="calculatingOverlay">
+    <div class="calculating-content">
+      <div class="calculating-spinner"></div>
+      <div class="calculating-title">Calculating Tally</div>
+      <div class="calculating-sub">Counting all votes across categories…</div>
+    </div>
+  </div>
+
+  <!-- Reveal Overlay -->
+  <div class="reveal-overlay" id="revealOverlay">
+    <div class="reveal-overlay-title">Now Revealing</div>
+    <div class="reveal-overlay-cat" id="revealOverlayCat"></div>
+    <div class="reveal-overlay-sub" id="revealOverlaySub">Category</div>
+  </div>
+
+  <!-- Video Modal -->
+  <div id="videoModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeVideoModal()">✕</button>
+      <div class="modal-creator-name" id="modalCreatorName"></div>
+      <div class="video-container">
+        <iframe id="videoFrame" src="" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen></iframe>
+      </div>
+      <button class="btn-primary modal-vote-btn" id="modalVoteBtn">Vote for this Creator</button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast"></div>
+
+  <!-- About Us Modal -->
+  <div id="aboutModal" class="modal-overlay" onclick="closeAboutModal(event)">
+    <div class="modal-box" style="max-width:680px; overflow-y:auto; max-height:88vh;">
+      <button class="modal-close" onclick="closeAboutModal()">✕</button>
+      <div class="modal-creator-name" style="margin-bottom:20px;display:flex;align-items:center;gap:10px;"><img src="images/logo.svg" alt="" class="nav-logo-img"> About Next-Gen</div>
+      <div style="color:var(--text);font-size:0.97rem;line-height:1.85;">
+        <p style="margin-bottom:16px;">
+          Next-Gen: Recognizing Up-and-Coming Content Creators is an awards platform dedicated to
+          celebrating and elevating the rising stars of content creating over the past year. As one
+          of the first systems focused specifically on emerging talent, we aim to shine a spotlight
+          on creators who are shaping the future of online entertainment.
+        </p>
+        <p style="margin-bottom:16px;">
+          Our mission is to honor content creators who not only produce engaging and original content
+          but also build vibrant, welcoming communities that connect people around the world. We track
+          trends, understand the pulse of the content-creating world, and feature awards per categories
+          covering a wide range of influence, content styles, and community experiences.
+        </p>
+        <p style="margin-bottom:16px;">
+          Why does this matter? Because it's you — the viewers and supporters — who have the power to
+          nominate and select the winners. Your voice decides who gets recognized for their creativity,
+          dedication, and impact. As we, creators believe that you — supporters — know exactly who
+          ultimately deserves these recognitions.
+        </p>
+        <p style="margin-bottom:0;">
+          The Next-Gen Streamer Awards 2025 will be held across multiple conventions, giving fans the
+          chance to experience the excitement live and in person. Join us as your favorite streamers
+          walk the red carpet, take part in live interviews, enjoy special performances, and celebrate
+          the awards ceremony up close. Check the schedule for each convention location and don't miss
+          out on this immersive experience that brings the streaming community together like never
+          before. <a href="https://lanceg01.github.io/Next-Gen/" target="_blank" rel="noopener"
+            style="color:var(--violet);font-weight:600;text-decoration:none;">
+            @https://lanceg01.github.io/Next-Gen/
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="vote.js"></script>
+  <script>
+    document.addEventListener('click', function (e) {
+      const a = e.target.closest('a[href]');
+      if (!a) return;
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') || a.target === '_blank') return;
+      e.preventDefault();
+      document.body.classList.add('page-exit');
+      setTimeout(() => { window.location.href = href; }, 300);
+    });
+
+    // Depth fade on scroll
+    const depthFade = document.getElementById('depthFade');
+    function updateDepth() {
+      const scrolled = window.scrollY + window.innerHeight;
+      const total = document.documentElement.scrollHeight;
+      const pct = Math.min(1, (scrolled - window.innerHeight * 0.85) / (total - window.innerHeight * 0.85));
+      depthFade.style.opacity = pct;
+    }
+    window.addEventListener('scroll', updateDepth, { passive: true });
+    updateDepth();
+
+    function openAboutModal() {
+      document.getElementById('aboutModal').classList.add('open');
+    }
+    function closeAboutModal(e) {
+      if (!e || e.target === document.getElementById('aboutModal')) {
+        document.getElementById('aboutModal').classList.remove('open');
+      }
+    }
+    window.openAboutModal  = openAboutModal;
+    window.closeAboutModal = closeAboutModal;
+  </script>
+</body>
+</html>

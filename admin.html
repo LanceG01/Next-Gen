@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Next-Gen — Admin</title>
+  <link rel="icon" type="image/svg+xml" href="images/logo.svg" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-login-wrap {
+      position: relative; z-index: 1; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .admin-badge {
+      display: inline-block;
+      background: rgba(255,60,110,0.15); border: 1px solid var(--red);
+      color: var(--red); font-size: 0.7rem; letter-spacing: 2px;
+      text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px;
+    }
+    .admin-dashboard {
+      display: none; position: relative; z-index: 1;
+      max-width: 1150px; margin: 0 auto; padding: 32px 24px 80px;
+    }
+    .admin-dashboard.active { display: block; }
+    .admin-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+    }
+    .admin-nav h1 {
+      font-size: 1.4rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+      background: linear-gradient(135deg, var(--red), var(--neon-glow));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .admin-nav span { color: var(--muted); font-size: 0.85rem; margin-right: 16px; }
+
+    /* ===== REVEAL CONTROL PANEL ===== */
+    .reveal-panel {
+      background: linear-gradient(145deg, rgba(19,0,32,0.95), rgba(15,0,24,0.98));
+      border: 1px solid var(--neon);
+      border-radius: 16px; padding: 24px 28px; margin-bottom: 28px;
+      box-shadow: 0 0 24px rgba(192,38,211,0.2);
+    }
+    .reveal-panel-title {
+      font-size: 0.78rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--neon-glow); margin-bottom: 16px; font-weight: 700;
+    }
+    .reveal-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .reveal-controls label { color: var(--muted); font-size: 0.82rem; letter-spacing: 1px; text-transform: uppercase; }
+    .reveal-controls input[type="number"] {
+      width: 80px; padding: 9px 12px;
+      background: rgba(123,47,255,0.1); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 0.95rem; outline: none;
+    }
+    .reveal-controls input[type="number"]:focus { border-color: var(--violet); }
+    .btn-reveal-set {
+      padding: 9px 20px; background: linear-gradient(135deg, var(--purple), var(--neon));
+      border: none; border-radius: 8px; color: white; font-size: 0.85rem;
+      font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      cursor: pointer; transition: all 0.2s; width: auto;
+      box-shadow: 0 2px 12px rgba(123,47,255,0.35);
+    }
+    .btn-reveal-set:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(192,38,211,0.45); }
+    .btn-reveal-now {
+      padding: 9px 20px; background: transparent;
+      border: 1px solid var(--green); border-radius: 8px;
+      color: var(--green); font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s; width: auto;
+    }
+    .btn-reveal-now:hover { background: rgba(57,255,20,0.1); }
+    .btn-hide-results {
+      padding: 9px 20px; background: transparent;
+      border: 1px solid var(--red); border-radius: 8px;
+      color: var(--red); font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s; width: auto;
+    }
+    .btn-hide-results:hover { background: rgba(255,60,110,0.1); }
+    .btn-cancel-timer {
+      padding: 9px 20px; background: transparent;
+      border: 1px solid var(--muted); border-radius: 8px;
+      color: var(--muted); font-size: 0.85rem; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s; width: auto;
+    }
+    .btn-cancel-timer:hover { border-color: var(--red); color: var(--red); }
+
+    .timer-display {
+      display: none; align-items: center; gap: 10px;
+      background: rgba(123,47,255,0.1); border: 1px solid var(--border);
+      border-radius: 10px; padding: 10px 18px; margin-top: 14px;
+    }
+    .timer-display.active { display: flex; }
+    .timer-label { font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+    .timer-countdown {
+      font-size: 1.4rem; font-weight: 800; font-family: monospace;
+      background: linear-gradient(135deg, var(--violet), var(--neon-glow));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .timer-countdown.warning { background: linear-gradient(135deg, var(--red), #ff8c00) !important;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .timer-status { font-size: 0.78rem; color: var(--muted); margin-left: auto; }
+
+    .reveal-status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 14px; border-radius: 20px; font-size: 0.75rem;
+      font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-left: 12px;
+    }
+    .reveal-status-badge.hidden  { background: rgba(255,60,110,0.15); color: var(--red); border: 1px solid var(--red); }
+    .reveal-status-badge.revealed{ background: rgba(57,255,20,0.12);  color: var(--green); border: 1px solid var(--green); }
+    .reveal-status-badge.locked  { background: rgba(255,140,0,0.15);  color: #ff8c00; border: 1px solid #ff8c00; }
+
+    /* ===== STATS ===== */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px; margin-bottom: 28px;
+    }
+    .stat-card {
+      background: linear-gradient(145deg, rgba(19,0,32,0.9), rgba(15,0,24,0.95));
+      border: 1px solid var(--border); border-radius: 14px; padding: 20px; text-align: center;
+    }
+    .stat-num {
+      font-size: 2rem; font-weight: 800;
+      background: linear-gradient(135deg, var(--violet), var(--neon-glow));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+
+    /* ===== TABS ===== */
+    .admin-tabs { display: flex; gap: 8px; margin-bottom: 28px; flex-wrap: wrap; }
+    .tab-btn {
+      padding: 10px 22px; background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted); font-size: 0.82rem; font-weight: 600;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; width: auto;
+    }
+    .tab-btn:hover { border-color: var(--violet); color: var(--violet); }
+    .tab-btn.active {
+      background: rgba(123,47,255,0.2); border-color: var(--violet);
+      color: var(--neon-glow); box-shadow: 0 0 12px rgba(123,47,255,0.3);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ===== VOTE RESULTS ===== */
+    .results-section { margin-bottom: 32px; }
+    .results-section h3 {
+      font-size: 0.82rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 12px;
+    }
+    .result-row {
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(19,0,32,0.7); border: 1px solid var(--border);
+      border-radius: 10px; padding: 13px 18px; margin-bottom: 8px; transition: border-color 0.2s;
+    }
+    .result-row:hover { border-color: var(--violet); }
+    .result-rank { font-size: 1.1rem; font-weight: 800; color: var(--neon-glow); width: 28px; text-align: center; }
+    .result-name { flex: 1; font-weight: 600; color: var(--white); font-size: 0.95rem; }
+    .result-cat {
+      font-size: 0.7rem; letter-spacing: 1px; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    .result-cat.entertainment { background: rgba(123,47,255,0.2); color: var(--violet); }
+    .result-cat.influencer    { background: rgba(192,38,211,0.2); color: var(--neon-glow); }
+    .result-cat.gaming        { background: rgba(57,255,20,0.1);  color: var(--green); }
+    .result-bar-wrap { width: 130px; background: rgba(255,255,255,0.06); border-radius: 4px; height: 6px; overflow: hidden; }
+    .result-bar { height: 100%; background: linear-gradient(90deg, var(--purple), var(--neon-glow)); border-radius: 4px; transition: width 0.6s ease; }
+    .result-votes { font-size: 0.85rem; color: var(--muted); width: 60px; text-align: right; }
+    .empty-state { text-align: center; padding: 36px; color: var(--muted); font-size: 0.9rem; }
+
+    /* ===== USERS TABLE ===== */
+    .table-toolbar {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;
+    }
+    .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+    thead tr { background: rgba(123,47,255,0.15); border-bottom: 1px solid var(--border); }
+    th {
+      padding: 12px 14px; text-align: left; font-size: 0.7rem;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); font-weight: 600;
+    }
+    td { padding: 11px 14px; border-bottom: 1px solid rgba(61,0,112,0.3); color: var(--text); }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: rgba(123,47,255,0.07); }
+    .td-email { color: var(--muted); font-size: 0.8rem; }
+    .td-id { color: rgba(61,0,112,0.8); font-size: 0.72rem; font-family: monospace; }
+    .voted-pill {
+      display: inline-block; padding: 2px 9px; border-radius: 20px;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px;
+    }
+    .voted-pill.yes { background: rgba(57,255,20,0.12); color: var(--green); }
+    .voted-pill.no  { background: rgba(255,60,110,0.12); color: var(--red); }
+
+    .btn-delete {
+      padding: 5px 12px; background: transparent; border: 1px solid var(--red);
+      border-radius: 6px; color: var(--red); font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s; width: auto; letter-spacing: 0.5px;
+    }
+    .btn-delete:hover { background: rgba(255,60,110,0.15); }
+
+    .refresh-btn {
+      padding: 8px 16px; background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted); font-size: 0.8rem; cursor: pointer;
+      transition: all 0.2s; width: auto; letter-spacing: 1px;
+    }
+    .refresh-btn:hover { border-color: var(--violet); color: var(--violet); }
+
+    .btn-reset-votes {
+      padding: 9px 20px; background: transparent;
+      border: 1px solid #ff8c00; border-radius: 8px;
+      color: #ff8c00; font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+      transition: all 0.2s; width: auto;
+    }
+    .btn-reset-votes:hover { background: rgba(255,140,0,0.12); }
+
+    /* ===== CONFIRM MODAL ===== */
+    .confirm-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.8); z-index: 2000;
+      align-items: center; justify-content: center; backdrop-filter: blur(4px);
+    }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box {
+      background: linear-gradient(145deg, #130020, #0f0018);
+      border: 1px solid var(--red); border-radius: 16px; padding: 32px 28px;
+      max-width: 380px; width: 90%; text-align: center;
+      box-shadow: 0 0 40px rgba(255,60,110,0.3); animation: modalIn 0.2s ease;
+    }
+    @keyframes modalIn { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }
+    .confirm-box h3 { color: var(--red); font-size: 1.1rem; margin-bottom: 10px; }
+    .confirm-box p  { color: var(--muted); font-size: 0.88rem; margin-bottom: 24px; line-height: 1.5; }
+    .confirm-actions { display: flex; gap: 12px; justify-content: center; }
+    .btn-confirm-del {
+      padding: 10px 24px; background: var(--red); border: none; border-radius: 8px;
+      color: white; font-weight: 700; font-size: 0.9rem; cursor: pointer; width: auto;
+    }
+    .btn-confirm-del:hover { background: #ff1a4a; }
+    .btn-confirm-cancel {
+      padding: 10px 24px; background: transparent; border: 1px solid var(--border);
+      border-radius: 8px; color: var(--muted); font-size: 0.9rem; cursor: pointer; width: auto;
+    }
+    .btn-confirm-cancel:hover { border-color: var(--muted); color: var(--text); }
+  </style>
+</head>
+<body>
+  <div class="page-transition-wrap">
+  <div class="stars"></div>
+
+  <!-- Admin Dashboard -->
+  <div class="admin-dashboard" id="adminDashboard">
+
+    <div class="admin-nav">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <h1><img src="images/logo.svg" alt="" class="nav-logo-img" style="margin-right:8px;"> Admin Dashboard</h1>
+        <span class="reveal-status-badge hidden" id="revealStatusBadge">● Results Hidden</span>
+      </div>
+      <div>
+        <span>Logged in as Lance</span>
+        <button class="btn-logout" onclick="adminLogout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Reveal Control Panel -->
+    <div class="reveal-panel">
+      <div class="reveal-panel-title">🔒 Results Reveal Control</div>
+      <div class="reveal-controls">
+        <label for="timerDays">Reveal in</label>
+        <input type="number" id="timerDays" min="0" max="365" value="0" style="width:64px" />
+        <label>d</label>
+        <input type="number" id="timerHours" min="0" max="23" value="0" style="width:64px" />
+        <label>h</label>
+        <input type="number" id="timerMinutes" min="0" max="59" value="5" style="width:64px" />
+        <label>m</label>
+        <input type="number" id="timerSeconds" min="0" max="59" value="0" style="width:64px" />
+        <label>s</label>
+        <button class="btn-reveal-set" onclick="startRevealTimer()">Set Timer</button>
+        <button class="btn-reveal-now" onclick="revealNow()">Reveal Now</button>
+        <button class="btn-hide-results" onclick="hideResults()">Hide Results</button>
+        <button class="btn-cancel-timer" id="btnCancelTimer" style="display:none" onclick="cancelTimer()">Cancel Timer</button>
+        <button class="btn-reset-votes" onclick="promptResetVotes()">↺ Reset Votes</button>
+      </div>
+      <div class="timer-display" id="timerDisplay">
+        <span class="timer-label">Revealing in</span>
+        <span class="timer-countdown" id="timerCountdown">00:00</span>
+        <span class="timer-status" id="timerStatusText"></span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="statTotalUsers">0</div><div class="stat-label">Registered Users</div></div>
+      <div class="stat-card"><div class="stat-num" id="statTotalVotes">0</div><div class="stat-label">Total Votes Cast</div></div>
+      <div class="stat-card"><div class="stat-num" id="statCategories">3</div><div class="stat-label">Categories</div></div>
+      <div class="stat-card"><div class="stat-num" id="statCreators">12</div><div class="stat-label">Creators</div></div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="switchTab('votes', this)">🗳️ Vote Results</button>
+      <button class="tab-btn" onclick="switchTab('users', this)">👥 User Database</button>
+    </div>
+
+    <!-- Vote Results Tab -->
+    <div class="tab-panel active" id="tab-votes">
+      <div class="results-section"><h3>🎬 Next-Gen Media & Entertainment Creators</h3><div id="results-entertainment"></div></div>
+      <div class="results-section"><h3>✨ Next-Gen Social Impact Creators</h3><div id="results-influencer"></div></div>
+      <div class="results-section"><h3>🎮 Next-Gen Gaming Creators</h3><div id="results-gaming"></div></div>
+    </div>
+
+    <!-- Users Tab -->
+    <div class="tab-panel" id="tab-users">
+      <div class="table-toolbar">
+        <span style="color:var(--muted);font-size:0.85rem;" id="userCountLabel"></span>
+        <button class="refresh-btn" onclick="renderDashboard()">↻ Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>Name</th><th>Email</th><th>User ID</th>
+              <th>Next-Gen Media & Ent.</th><th>Next-Gen Social Impact</th><th>Next-Gen Gaming</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  </div><!-- end .page-transition-wrap -->
+
+  <!-- Delete Confirm Modal -->
+  <div class="confirm-overlay" id="confirmOverlay">
+    <div class="confirm-box">
+      <h3>Delete User?</h3>
+      <p id="confirmMsg">This will permanently remove the user and all their votes.</p>
+      <div class="confirm-actions">
+        <button class="btn-confirm-del" onclick="confirmDelete()">Delete</button>
+        <button class="btn-confirm-cancel" onclick="closeConfirm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Votes Confirm Modal -->
+  <div class="confirm-overlay" id="resetConfirmOverlay">
+    <div class="confirm-box" style="border-color:#ff8c00;box-shadow:0 0 40px rgba(255,140,0,0.3);">
+      <h3 style="color:#ff8c00;">Reset All Votes?</h3>
+      <p>This will permanently delete all votes. Users will remain and can vote again. This cannot be undone.</p>
+      <div class="confirm-actions">
+        <button class="btn-confirm-del" style="background:#ff8c00;" onclick="confirmResetVotes()">Reset Votes</button>
+        <button class="btn-confirm-cancel" onclick="closeResetConfirm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+  <script>
+    document.addEventListener('click', function (e) {
+      const a = e.target.closest('a[href]');
+      if (!a) return;
+      const href = a.getAttribute('href');
+      if (!href || href.startsWith('#') || href.startsWith('http') || a.target === '_blank') return;
+      e.preventDefault();
+      document.body.classList.add('page-exit');
+      setTimeout(() => { window.location.href = href; }, 300);
+    });
+  </script>
+</body>
+</html>
