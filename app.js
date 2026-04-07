@@ -33,18 +33,19 @@ async function login(e) {
   try {
     const lower = input.toLowerCase();
 
-    // Try email first, then username
-    let userDoc = null;
-    const emailSnap = await getDocs(query(collection(db, 'users'), where('email', '==', lower)));
-    if (!emailSnap.empty) {
-      userDoc = emailSnap.docs[0];
-    } else {
-      const nameSnap = await getDocs(query(collection(db, 'users'), where('nameLower', '==', lower)));
-      if (!nameSnap.empty) userDoc = nameSnap.docs[0];
+    // Try email first
+    let q    = query(collection(db, 'users'), where('email', '==', lower));
+    let snap = await getDocs(q);
+
+    // Fallback: try username
+    if (snap.empty) {
+      q    = query(collection(db, 'users'), where('nameLower', '==', lower));
+      snap = await getDocs(q);
     }
 
-    if (!userDoc) return showMsg('Invalid email/username or password.', 'error');
-    const user = userDoc.data();
+    if (snap.empty) return showMsg('Invalid email/username or password.', 'error');
+    const userDoc = snap.docs[0];
+    const user    = userDoc.data();
     if (user.password !== password) return showMsg('Invalid email/username or password.', 'error');
     saveSession({ id: userDoc.id, name: user.name, email: user.email });
     navigateTo('intro.html');

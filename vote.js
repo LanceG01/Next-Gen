@@ -4,18 +4,18 @@ import { db, doc, getDoc, setDoc, addDoc, collection, query, where,
   from './firebase.js';
 
 const VIDEOS = {
-  mightymagulang: { id: 'dQw4w9WgXcQ', name: 'Mighty Magulang',   category: 'entertainment' },
-  exposed:        { id: 'dQw4w9WgXcQ', name: 'Exposed',            category: 'entertainment' },
-  leomiho:        { id: 'dQw4w9WgXcQ', name: 'Leomiho',            category: 'entertainment' },
-  renzomaano:     { id: 'dQw4w9WgXcQ', name: 'renzomaano',         category: 'entertainment' },
-  geloyconcepcion:{ id: 'dQw4w9WgXcQ', name: 'Geloy Concepcion',   category: 'influencer'    },
-  smartfit:       { id: 'dQw4w9WgXcQ', name: 'Smartfit',           category: 'influencer'    },
-  celinemurillo:  { id: 'dQw4w9WgXcQ', name: 'Celine Murillo',     category: 'influencer'    },
-  docdex:         { id: 'dQw4w9WgXcQ', name: 'Doc.dex',            category: 'influencer'    },
-  dqwnhill:       { id: 'dQw4w9WgXcQ', name: 'dqwnhill',           category: 'gaming'        },
-  kapitanpugo:    { id: 'dQw4w9WgXcQ', name: 'Kapitan Pugo',       category: 'gaming'        },
-  jungfps:        { id: 'dQw4w9WgXcQ', name: 'JungFPS',            category: 'gaming'        },
-  thegalaxyboys:  { id: 'dQw4w9WgXcQ', name: 'TheGalaxyBoys',      category: 'gaming'        },
+  mightymagulang: { id: 'DTieoeF297o', name: 'Mighty Magulang',   category: 'entertainment' },
+  exposed:        { id: '81k9mZ69VGY', name: 'Exposed',            category: 'entertainment' },
+  leomiho:        { id: 'r_VCl2m2dig', name: 'Leomiho',            category: 'entertainment' },
+  renzomaano:     { id: 'QjHhqLj6bEQ', name: 'renzomaano',         category: 'entertainment' },
+  geloyconcepcion:{ id: 'D7jzbYcczt4', name: 'Geloy Concepcion',   category: 'influencer'    },
+  smartfit:       { id: 'zgiBI7jn7F8', name: 'Smartfit',           category: 'influencer'    },
+  celinemurillo:  { id: 'zeTC16K9OL4', name: 'Celine Murillo',     category: 'influencer'    },
+  docdex:         { id: 'NdvLlNZj-rE', name: 'Doc.dex',            category: 'influencer'    },
+  dqwnhill:       { id: 'qFSWOdCwkQg', name: 'dqwnhill',           category: 'gaming'        },
+  kapitanpugo:    { id: 'K6GjDZkcnwA', name: 'Kapitan Pugo',       category: 'gaming'        },
+  jungfps:        { id: 'py5Pi7pEC4A', name: 'JungFPS',            category: 'gaming'        },
+  thegalaxyboys:  { id: 'gtE4naqqlbE', name: 'TheGalaxyBoys',      category: 'gaming'        },
 };
 
 const CATEGORY_ORDER = ['entertainment', 'influencer', 'gaming'];
@@ -358,6 +358,13 @@ function updateVoterBanner(s, remaining, isLocked) {
 function openVideo(creatorId) {
   const creator = VIDEOS[creatorId];
   if (!creator) return;
+
+  // External link (e.g. Facebook) — open in new tab
+  if (!creator.id && creator.url) {
+    window.open(creator.url, '_blank', 'noopener');
+    return;
+  }
+
   currentModalCreator = creatorId;
   document.getElementById('modalCreatorName').textContent = `▶ ${creator.name} — Highlights`;
   document.getElementById('videoFrame').src = `https://www.youtube.com/embed/${creator.id}?autoplay=1&rel=0`;

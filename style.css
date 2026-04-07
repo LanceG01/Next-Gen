@@ -173,16 +173,16 @@ body.page-exit .page-transition-wrap {
 }
 .form-group input::placeholder { color: rgba(157,127,192,0.5); }
 
-.input-wrap {
+.input-reveal-wrap {
   position: relative;
   display: flex;
   align-items: center;
 }
-.input-wrap input {
+.input-reveal-wrap input {
   flex: 1;
   padding-right: 42px;
 }
-.btn-eye {
+.btn-reveal-pw {
   position: absolute;
   right: 10px;
   background: transparent;
@@ -193,9 +193,9 @@ body.page-exit .page-transition-wrap {
   padding: 0;
   width: auto;
   line-height: 1;
-  transition: opacity 0.2s;
+  transition: color 0.2s;
 }
-.btn-eye:hover { opacity: 0.75; }
+.btn-reveal-pw:hover { color: var(--violet); }
 
 .btn-primary {
   width: 100%;
